@@ -1,5 +1,13 @@
 require('dotenv').config();
 
+process.on('unhandledRejection', (reason) => {
+    console.error('Erro não tratado (unhandledRejection):', reason);
+});
+
+process.on('uncaughtException', (error) => {
+    console.error('Erro não tratado (uncaughtException):', error);
+});
+
 const { default: makeWASocket, useMultiFileAuthState, DisconnectReason } = require('@whiskeysockets/baileys');
 const fs = require('fs');
 const qrcode = require('qrcode-terminal');
@@ -37,6 +45,20 @@ const statusapi = require('./comandos/statusapi');
 const usoapi = require('./comandos/usoapi');
 const quiz = require('./comandos/quiz');
 const responder = require('./comandos/responder');
+const blackjack = require('./comandos/blackjack');
+const hit = require('./comandos/hit');
+const stand = require('./comandos/stand');
+const ship = require('./comandos/ship');
+const verdade = require('./comandos/verdade');
+const desafio = require('./comandos/desafio');
+const vdd = require('./comandos/vdd');
+const cep = require('./comandos/cep');
+const ddd = require('./comandos/ddd');
+const feriados = require('./comandos/feriados');
+const banco = require('./comandos/banco');
+const play = require('./comandos/play');
+const { coop, eu1, eu2 } = require('./comandos/coop');
+
 
 
 const commands = {
@@ -71,8 +93,23 @@ const commands = {
     statusapi,
     usoapi,
     quiz,
-    responder
-
+    responder,
+    blackjack,
+    hit,
+    stand,
+    compatibilidade: ship,
+    ship,
+    verdade,
+    desafio,
+    vdd,
+    cep,
+    ddd,
+    feriados,
+    banco,
+    play,
+    coop,
+    eu1,
+    eu2
 };
 
 // Comandos que SÓ admin pode usar

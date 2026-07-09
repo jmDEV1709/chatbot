@@ -41,7 +41,7 @@ module.exports = async ({ message, sock }) => {
             pack: 'ISAAK DITADOR',
             author: 'JM-DEVELOPER',
             type: StickerTypes.FULL,
-            quality: isVideo ? 50 : 100, // vídeo com qualidade menor = menos peso/menos chance de travar
+            quality: isVideo ? 50 : 70, // vídeo com qualidade menor = menos peso/menos chance de travar
         });
 
         // Timeout de segurança: se travar na conversão, não deixa o processo pendurado

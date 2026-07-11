@@ -39,8 +39,8 @@ module.exports = async ({ message, sock }) => {
 
         const sticker = new Sticker(buffer, {
             pack: 'ISAAK DITADOR',
-            author: 'JM-DEVELOPER',
-            type: StickerTypes.FULL,
+            author: 'jm-developer',
+            type: StickerTypes.CROPPED,
             quality: isVideo ? 50 : 70, // vídeo com qualidade menor = menos peso/menos chance de travar
         });
 

@@ -1,571 +1,1087 @@
 const { salvarQuiz } = require('../utils/quizStore');
 
-const perguntas = [
-    {
-        id: 1,
-        dificuldade: 'facil',
-        categoria: 'Conhecimentos Gerais',
-        pergunta: 'Qual é a capital do Brasil?',
-        opcoes: ['Rio de Janeiro', 'Brasília', 'São Paulo', 'Salvador'],
-        correta: 'Brasília'
-    },
-    {
-        id: 2,
-        dificuldade: 'facil',
-        categoria: 'Geografia',
-        pergunta: 'Em qual região do Brasil fica o estado do Rio de Janeiro?',
-        opcoes: ['Norte', 'Nordeste', 'Sudeste', 'Sul'],
-        correta: 'Sudeste'
-    },
-    {
-        id: 3,
-        dificuldade: 'facil',
-        categoria: 'Matemática',
-        pergunta: 'Quanto é 7 x 8?',
-        opcoes: ['54', '56', '58', '64'],
-        correta: '56'
-    },
-    {
-        id: 4,
-        dificuldade: 'facil',
-        categoria: 'Brasil',
-        pergunta: 'Quais são as cores principais da bandeira do Brasil?',
-        opcoes: ['Verde, amarelo, azul e branco', 'Vermelho, azul e branco', 'Preto e branco', 'Verde e vermelho'],
-        correta: 'Verde, amarelo, azul e branco'
-    },
-    {
-        id: 5,
-        dificuldade: 'facil',
-        categoria: 'Tecnologia',
-        pergunta: 'O que significa HTML?',
-        opcoes: ['Linguagem de marcação', 'Banco de dados', 'Sistema operacional', 'Programa de edição'],
-        correta: 'Linguagem de marcação'
-    },
-    {
-        id: 6,
-        dificuldade: 'facil',
-        categoria: 'Português',
-        pergunta: 'Qual palavra está escrita corretamente?',
-        opcoes: ['Excessão', 'Exceção', 'Eseção', 'Eccessão'],
-        correta: 'Exceção'
-    },
-    {
-        id: 7,
-        dificuldade: 'facil',
-        categoria: 'Ciências',
-        pergunta: 'Qual órgão do corpo humano bombeia o sangue?',
-        opcoes: ['Pulmão', 'Coração', 'Estômago', 'Rim'],
-        correta: 'Coração'
-    },
-    {
-        id: 8,
-        dificuldade: 'facil',
-        categoria: 'Futebol',
-        pergunta: 'Quantos jogadores cada time tem em campo no futebol tradicional?',
-        opcoes: ['9', '10', '11', '12'],
-        correta: '11'
-    },
-    {
-        id: 9,
-        dificuldade: 'facil',
-        categoria: 'Cultura Brasileira',
-        pergunta: 'Qual festa popular é muito conhecida no Brasil?',
-        opcoes: ['Carnaval', 'Halloween', 'Ação de Graças', 'Ano Novo Chinês'],
-        correta: 'Carnaval'
-    },
-    {
-        id: 10,
-        dificuldade: 'facil',
-        categoria: 'Matemática',
-        pergunta: 'Quanto é 15 + 27?',
-        opcoes: ['32', '42', '52', '40'],
-        correta: '42'
-    },
-    {
-        id: 11,
-        dificuldade: 'facil',
-        categoria: 'Brasil',
-        pergunta: 'Qual é a moeda oficial do Brasil?',
-        opcoes: ['Dólar', 'Euro', 'Real', 'Peso'],
-        correta: 'Real'
-    },
-    {
-        id: 12,
-        dificuldade: 'facil',
-        categoria: 'Geografia',
-        pergunta: 'Qual oceano banha a costa brasileira?',
-        opcoes: ['Oceano Pacífico', 'Oceano Atlântico', 'Oceano Índico', 'Oceano Ártico'],
-        correta: 'Oceano Atlântico'
-    },
-    {
-        id: 13,
-        dificuldade: 'facil',
-        categoria: 'Tecnologia',
-        pergunta: 'Qual destes é um navegador de internet?',
-        opcoes: ['Google Chrome', 'Windows', 'Excel', 'Photoshop'],
-        correta: 'Google Chrome'
-    },
-    {
-        id: 14,
-        dificuldade: 'facil',
-        categoria: 'Ciências',
-        pergunta: 'Qual animal é conhecido como o melhor amigo do ser humano?',
-        opcoes: ['Cachorro', 'Jacaré', 'Águia', 'Tubarão'],
-        correta: 'Cachorro'
-    },
-    {
-        id: 15,
-        dificuldade: 'facil',
-        categoria: 'Conhecimentos Gerais',
-        pergunta: 'Quantos dias normalmente tem uma semana?',
-        opcoes: ['5', '6', '7', '8'],
-        correta: '7'
-    },
+/*
+ * Formato compacto:
+ *
+ * [
+ *   categoria,
+ *   pergunta,
+ *   [alternativa1, alternativa2, alternativa3, alternativa4],
+ *   respostaCorreta
+ * ]
+ */
 
-    {
-        id: 16,
-        dificuldade: 'medio',
-        categoria: 'História do Brasil',
-        pergunta: 'Em que ano o Brasil se tornou independente?',
-        opcoes: ['1500', '1822', '1889', '1964'],
-        correta: '1822'
-    },
-    {
-        id: 17,
-        dificuldade: 'medio',
-        categoria: 'História do Brasil',
-        pergunta: 'Quem proclamou a Independência do Brasil?',
-        opcoes: ['Dom Pedro I', 'Tiradentes', 'Getúlio Vargas', 'Dom Pedro II'],
-        correta: 'Dom Pedro I'
-    },
-    {
-        id: 18,
-        dificuldade: 'medio',
-        categoria: 'Geografia',
-        pergunta: 'Qual é o maior estado do Brasil em território?',
-        opcoes: ['Amazonas', 'Pará', 'Mato Grosso', 'Bahia'],
-        correta: 'Amazonas'
-    },
-    {
-        id: 19,
-        dificuldade: 'medio',
-        categoria: 'Ciências',
-        pergunta: 'Qual planeta é conhecido como planeta vermelho?',
-        opcoes: ['Vênus', 'Marte', 'Júpiter', 'Saturno'],
-        correta: 'Marte'
-    },
-    {
-        id: 20,
-        dificuldade: 'medio',
-        categoria: 'Português',
-        pergunta: 'Qual alternativa contém apenas substantivos?',
-        opcoes: ['Casa, livro, cidade', 'Correr, bonito, azul', 'Muito, ontem, aqui', 'Feliz, alto, rápido'],
-        correta: 'Casa, livro, cidade'
-    },
-    {
-        id: 21,
-        dificuldade: 'medio',
-        categoria: 'Tecnologia',
-        pergunta: 'Qual linguagem é muito usada para criar interatividade em páginas web?',
-        opcoes: ['JavaScript', 'Excel', 'Photoshop', 'Windows'],
-        correta: 'JavaScript'
-    },
-    {
-        id: 22,
-        dificuldade: 'medio',
-        categoria: 'Brasil',
-        pergunta: 'Qual cidade é conhecida como Cidade Maravilhosa?',
-        opcoes: ['São Paulo', 'Rio de Janeiro', 'Curitiba', 'Recife'],
-        correta: 'Rio de Janeiro'
-    },
-    {
-        id: 23,
-        dificuldade: 'medio',
-        categoria: 'Meio Ambiente',
-        pergunta: 'Qual bioma brasileiro é conhecido por sua grande floresta tropical?',
-        opcoes: ['Caatinga', 'Cerrado', 'Amazônia', 'Pampa'],
-        correta: 'Amazônia'
-    },
-    {
-        id: 24,
-        dificuldade: 'medio',
-        categoria: 'Matemática',
-        pergunta: 'Qual é o resultado de 12 x 12?',
-        opcoes: ['124', '134', '144', '154'],
-        correta: '144'
-    },
-    {
-        id: 25,
-        dificuldade: 'medio',
-        categoria: 'Geografia',
-        pergunta: 'Qual é a sigla do estado de Minas Gerais?',
-        opcoes: ['MG', 'MS', 'MT', 'MA'],
-        correta: 'MG'
-    },
-    {
-        id: 26,
-        dificuldade: 'medio',
-        categoria: 'História',
-        pergunta: 'Em que ano ocorreu a chegada dos portugueses ao Brasil?',
-        opcoes: ['1492', '1500', '1530', '1600'],
-        correta: '1500'
-    },
-    {
-        id: 27,
-        dificuldade: 'medio',
-        categoria: 'Ciências',
-        pergunta: 'Qual gás é essencial para a respiração humana?',
-        opcoes: ['Oxigênio', 'Hidrogênio', 'Nitrogênio', 'Gás carbônico'],
-        correta: 'Oxigênio'
-    },
-    {
-        id: 28,
-        dificuldade: 'medio',
-        categoria: 'Tecnologia',
-        pergunta: 'O que é CSS no desenvolvimento web?',
-        opcoes: ['Linguagem de estilo', 'Banco de dados', 'Sistema operacional', 'Servidor'],
-        correta: 'Linguagem de estilo'
-    },
-    {
-        id: 29,
-        dificuldade: 'medio',
-        categoria: 'Português',
-        pergunta: 'Qual é o plural de “cidadão”?',
-        opcoes: ['Cidadões', 'Cidadãos', 'Cidadães', 'Cidadãoses'],
-        correta: 'Cidadãos'
-    },
-    {
-        id: 30,
-        dificuldade: 'medio',
-        categoria: 'Esportes',
-        pergunta: 'Em qual esporte se usa uma raquete?',
-        opcoes: ['Tênis', 'Futebol', 'Natação', 'Boxe'],
-        correta: 'Tênis'
-    },
-    {
-        id: 31,
-        dificuldade: 'medio',
-        categoria: 'Brasil',
-        pergunta: 'Qual é o maior país da América do Sul?',
-        opcoes: ['Argentina', 'Brasil', 'Chile', 'Colômbia'],
-        correta: 'Brasil'
-    },
-    {
-        id: 32,
-        dificuldade: 'medio',
-        categoria: 'Conhecimentos Gerais',
-        pergunta: 'Quantos meses têm 28 dias?',
-        opcoes: ['Apenas fevereiro', 'Todos os meses', 'Dois meses', 'Nenhum mês'],
-        correta: 'Todos os meses'
-    },
-    {
-        id: 33,
-        dificuldade: 'medio',
-        categoria: 'Matemática',
-        pergunta: 'Qual é metade de 250?',
-        opcoes: ['100', '115', '125', '150'],
-        correta: '125'
-    },
-    {
-        id: 34,
-        dificuldade: 'medio',
-        categoria: 'Tecnologia',
-        pergunta: 'Qual destes é um sistema operacional?',
-        opcoes: ['Linux', 'HTML', 'Google', 'WhatsApp'],
-        correta: 'Linux'
-    },
-    {
-        id: 35,
-        dificuldade: 'medio',
-        categoria: 'Geografia',
-        pergunta: 'Qual é a capital do estado de São Paulo?',
-        opcoes: ['Campinas', 'Santos', 'São Paulo', 'Ribeirão Preto'],
-        correta: 'São Paulo'
-    },
-
-    {
-        id: 36,
-        dificuldade: 'dificil',
-        categoria: 'História do Brasil',
-        pergunta: 'Em que ano ocorreu a Proclamação da República no Brasil?',
-        opcoes: ['1822', '1888', '1889', '1930'],
-        correta: '1889'
-    },
-    {
-        id: 37,
-        dificuldade: 'dificil',
-        categoria: 'Geografia',
-        pergunta: 'Qual é o rio mais extenso do Brasil?',
-        opcoes: ['Rio São Francisco', 'Rio Paraná', 'Rio Amazonas', 'Rio Tocantins'],
-        correta: 'Rio Amazonas'
-    },
-    {
-        id: 38,
-        dificuldade: 'dificil',
-        categoria: 'Ciências',
-        pergunta: 'Qual é a unidade básica da vida?',
-        opcoes: ['Átomo', 'Célula', 'Molécula', 'Tecido'],
-        correta: 'Célula'
-    },
-    {
-        id: 39,
-        dificuldade: 'dificil',
-        categoria: 'Tecnologia',
-        pergunta: 'Em programação, o que é uma API?',
-        opcoes: ['Uma interface para comunicação entre sistemas', 'Um tipo de vírus', 'Uma placa de vídeo', 'Um editor de texto'],
-        correta: 'Uma interface para comunicação entre sistemas'
-    },
-    {
-        id: 40,
-        dificuldade: 'dificil',
-        categoria: 'Matemática',
-        pergunta: 'Qual é a raiz quadrada de 144?',
-        opcoes: ['10', '11', '12', '14'],
-        correta: '12'
-    },
-    {
-        id: 41,
-        dificuldade: 'dificil',
-        categoria: 'História',
-        pergunta: 'Qual movimento teve Tiradentes como um de seus principais nomes?',
-        opcoes: ['Inconfidência Mineira', 'Revolução Farroupilha', 'Guerra de Canudos', 'Revolta da Vacina'],
-        correta: 'Inconfidência Mineira'
-    },
-    {
-        id: 42,
-        dificuldade: 'dificil',
-        categoria: 'Português',
-        pergunta: 'Qual figura de linguagem ocorre em “O vento sussurrava pela janela”?',
-        opcoes: ['Metáfora', 'Personificação', 'Hipérbole', 'Ironia'],
-        correta: 'Personificação'
-    },
-    {
-        id: 43,
-        dificuldade: 'dificil',
-        categoria: 'Tecnologia',
-        pergunta: 'No desenvolvimento web, o que é responsividade?',
-        opcoes: ['Adaptação do layout a diferentes telas', 'Velocidade da internet', 'Tipo de banco de dados', 'Sistema de login'],
-        correta: 'Adaptação do layout a diferentes telas'
-    },
-    {
-        id: 44,
-        dificuldade: 'dificil',
-        categoria: 'Ciências',
-        pergunta: 'Qual parte da célula é conhecida como responsável por controlar suas atividades?',
-        opcoes: ['Membrana', 'Núcleo', 'Citoplasma', 'Ribossomo'],
-        correta: 'Núcleo'
-    },
-    {
-        id: 45,
-        dificuldade: 'dificil',
-        categoria: 'Geografia',
-        pergunta: 'Qual bioma brasileiro é conhecido por vegetação adaptada ao clima seco?',
-        opcoes: ['Caatinga', 'Amazônia', 'Mata Atlântica', 'Pantanal'],
-        correta: 'Caatinga'
-    },
-    {
-        id: 46,
-        dificuldade: 'dificil',
-        categoria: 'Matemática',
-        pergunta: 'Se x = 5, qual é o valor de 3x + 2?',
-        opcoes: ['15', '17', '20', '22'],
-        correta: '17'
-    },
-    {
-        id: 47,
-        dificuldade: 'dificil',
-        categoria: 'Brasil',
-        pergunta: 'Qual foi a primeira capital do Brasil?',
-        opcoes: ['Brasília', 'Rio de Janeiro', 'Salvador', 'São Paulo'],
-        correta: 'Salvador'
-    },
-    {
-        id: 48,
-        dificuldade: 'dificil',
-        categoria: 'Tecnologia',
-        pergunta: 'Qual destas opções representa melhor o front-end de um site?',
-        opcoes: ['Parte visual com a qual o usuário interage', 'Servidor de banco de dados', 'Sistema de backup', 'Painel elétrico'],
-        correta: 'Parte visual com a qual o usuário interage'
-    },
-    {
-        id: 49,
-        dificuldade: 'dificil',
-        categoria: 'Ciências',
-        pergunta: 'Qual é a principal função dos glóbulos vermelhos?',
-        opcoes: ['Transportar oxigênio', 'Produzir hormônios', 'Digerir alimentos', 'Filtrar urina'],
-        correta: 'Transportar oxigênio'
-    },
-    {
-        id: 50,
-        dificuldade: 'dificil',
-        categoria: 'História do Brasil',
-        pergunta: 'Qual lei aboliu oficialmente a escravidão no Brasil?',
-        opcoes: ['Lei Áurea', 'Lei do Ventre Livre', 'Lei Eusébio de Queirós', 'Lei Saraiva'],
-        correta: 'Lei Áurea'
-    },
-    {
-        id: 51,
-        dificuldade: 'facil',
-        categoria: 'Animais',
-        pergunta: 'Qual animal produz leite e é muito comum em fazendas?',
-        opcoes: ['Vaca', 'Galinha', 'Peixe', 'Jacaré'],
-        correta: 'Vaca'
-    },
-    {
-        id: 52,
-        dificuldade: 'facil',
-        categoria: 'Português',
-        pergunta: 'Qual destas palavras é um verbo?',
-        opcoes: ['Correr', 'Casa', 'Azul', 'Mesa'],
-        correta: 'Correr'
-    },
-    {
-        id: 53,
-        dificuldade: 'medio',
-        categoria: 'Tecnologia',
-        pergunta: 'Qual comando geralmente instala pacotes em projetos Node.js?',
-        opcoes: ['npm install', 'node delete', 'css run', 'html start'],
-        correta: 'npm install'
-    },
-    {
-        id: 54,
-        dificuldade: 'medio',
-        categoria: 'Futebol',
-        pergunta: 'Qual cartão indica expulsão direta no futebol?',
-        opcoes: ['Cartão vermelho', 'Cartão amarelo', 'Cartão azul', 'Cartão branco'],
-        correta: 'Cartão vermelho'
-    },
-    {
-        id: 55,
-        dificuldade: 'medio',
-        categoria: 'Geografia',
-        pergunta: 'Qual é a capital do Paraná?',
-        opcoes: ['Curitiba', 'Londrina', 'Maringá', 'Cascavel'],
-        correta: 'Curitiba'
-    },
-    {
-        id: 56,
-        dificuldade: 'dificil',
-        categoria: 'Tecnologia',
-        pergunta: 'Em JavaScript, qual palavra é usada para declarar uma constante?',
-        opcoes: ['const', 'variante', 'constant', 'fix'],
-        correta: 'const'
-    },
-    {
-        id: 57,
-        dificuldade: 'dificil',
-        categoria: 'Matemática',
-        pergunta: 'Qual é o valor de 2³?',
-        opcoes: ['6', '8', '9', '12'],
-        correta: '8'
-    },
-    {
-        id: 58,
-        dificuldade: 'medio',
-        categoria: 'Brasil',
-        pergunta: 'Qual estado brasileiro tem a sigla RJ?',
-        opcoes: ['Rio de Janeiro', 'Rio Grande do Norte', 'Roraima', 'Rondônia'],
-        correta: 'Rio de Janeiro'
-    },
-    {
-        id: 59,
-        dificuldade: 'facil',
-        categoria: 'Conhecimentos Gerais',
-        pergunta: 'Quantas letras tem a palavra “Brasil”?',
-        opcoes: ['5', '6', '7', '8'],
-        correta: '6'
-    },
-    {
-        id: 60,
-        dificuldade: 'medio',
-        categoria: 'Meio Ambiente',
-        pergunta: 'Qual atitude ajuda a preservar o meio ambiente?',
-        opcoes: ['Reciclar materiais', 'Jogar lixo no chão', 'Desperdiçar água', 'Queimar lixo'],
-        correta: 'Reciclar materiais'
-    }
+const perguntasFaceis = [
+    [
+        'Geografia',
+        'Qual é a capital do Brasil?',
+        ['Brasília', 'Salvador', 'São Paulo', 'Rio de Janeiro'],
+        'Brasília'
+    ],
+    [
+        'Ciências',
+        'Qual planeta é conhecido como Planeta Vermelho?',
+        ['Marte', 'Vênus', 'Saturno', 'Mercúrio'],
+        'Marte'
+    ],
+    [
+        'Matemática',
+        'Quanto é 9 vezes 7?',
+        ['54', '63', '72', '81'],
+        '63'
+    ],
+    [
+        'Corpo Humano',
+        'Qual órgão bombeia o sangue pelo corpo?',
+        ['Pulmão', 'Coração', 'Fígado', 'Estômago'],
+        'Coração'
+    ],
+    [
+        'Animais',
+        'Qual é o maior animal terrestre?',
+        ['Elefante-africano', 'Girafa', 'Rinoceronte', 'Hipopótamo'],
+        'Elefante-africano'
+    ],
+    [
+        'Brasil',
+        'Qual é a moeda oficial do Brasil?',
+        ['Peso', 'Real', 'Euro', 'Dólar'],
+        'Real'
+    ],
+    [
+        'Português',
+        'Qual destas palavras está escrita corretamente?',
+        ['Excessão', 'Exceção', 'Eseção', 'Ecessão'],
+        'Exceção'
+    ],
+    [
+        'Geografia',
+        'Qual oceano banha a costa brasileira?',
+        ['Pacífico', 'Atlântico', 'Índico', 'Ártico'],
+        'Atlântico'
+    ],
+    [
+        'Esportes',
+        'Quantos jogadores cada time possui em campo no futebol tradicional?',
+        ['9', '10', '11', '12'],
+        '11'
+    ],
+    [
+        'Ciências',
+        'Qual gás é utilizado pelo corpo humano durante a respiração?',
+        ['Hélio', 'Oxigênio', 'Metano', 'Hidrogênio'],
+        'Oxigênio'
+    ],
+    [
+        'Tecnologia',
+        'Qual destes programas é um navegador de internet?',
+        ['Chrome', 'Excel', 'Paint', 'Word'],
+        'Chrome'
+    ],
+    [
+        'Geografia',
+        'Em qual continente fica o Brasil?',
+        ['Ásia', 'Europa', 'América do Sul', 'África'],
+        'América do Sul'
+    ],
+    [
+        'Matemática',
+        'Qual é a metade de 100?',
+        ['25', '40', '50', '75'],
+        '50'
+    ],
+    [
+        'Natureza',
+        'Qual parte da planta geralmente absorve água do solo?',
+        ['Flor', 'Folha', 'Raiz', 'Fruto'],
+        'Raiz'
+    ],
+    [
+        'Cultura Brasileira',
+        'Qual dança é tradicionalmente associada às festas juninas?',
+        ['Quadrilha', 'Tango', 'Balé', 'Flamenco'],
+        'Quadrilha'
+    ],
+    [
+        'Geografia',
+        'Qual é a capital da Argentina?',
+        ['Lima', 'Buenos Aires', 'Montevidéu', 'Santiago'],
+        'Buenos Aires'
+    ],
+    [
+        'Português',
+        'Qual destas palavras é um verbo?',
+        ['Correr', 'Mesa', 'Azul', 'Janela'],
+        'Correr'
+    ],
+    [
+        'Ciências',
+        'A água congela normalmente a quantos graus Celsius?',
+        ['0 °C', '10 °C', '50 °C', '100 °C'],
+        '0 °C'
+    ],
+    [
+        'História',
+        'Quem foi o primeiro imperador do Brasil?',
+        ['Dom Pedro I', 'Dom Pedro II', 'Deodoro da Fonseca', 'Getúlio Vargas'],
+        'Dom Pedro I'
+    ],
+    [
+        'Música',
+        'Quantas notas existem na sequência musical básica de dó a si?',
+        ['Cinco', 'Seis', 'Sete', 'Oito'],
+        'Sete'
+    ],
+    [
+        'Animais',
+        'Qual destes animais é um mamífero?',
+        ['Golfinho', 'Tubarão', 'Sardinha', 'Polvo'],
+        'Golfinho'
+    ],
+    [
+        'Matemática',
+        'Quanto é 144 dividido por 12?',
+        ['10', '11', '12', '14'],
+        '12'
+    ],
+    [
+        'Geografia',
+        'Qual é a capital de Portugal?',
+        ['Porto', 'Lisboa', 'Coimbra', 'Braga'],
+        'Lisboa'
+    ],
+    [
+        'Tecnologia',
+        'Qual aparelho é normalmente usado para mover o cursor de um computador?',
+        ['Mouse', 'Roteador', 'Monitor', 'Microfone'],
+        'Mouse'
+    ],
+    [
+        'Esportes',
+        'Em qual esporte se utiliza uma cesta e uma bola?',
+        ['Basquete', 'Tênis', 'Natação', 'Golfe'],
+        'Basquete'
+    ],
+    [
+        'Ciências',
+        'Qual estrela ilumina a Terra durante o dia?',
+        ['Lua', 'Sol', 'Sírius', 'Vênus'],
+        'Sol'
+    ],
+    [
+        'Geografia',
+        'Qual é o maior país da América do Sul em território?',
+        ['Argentina', 'Brasil', 'Peru', 'Colômbia'],
+        'Brasil'
+    ],
+    [
+        'Português',
+        'Qual é o plural correto de papel?',
+        ['Papels', 'Papéis', 'Papeles', 'Papelsões'],
+        'Papéis'
+    ],
+    [
+        'Conhecimentos Gerais',
+        'Quantos dias possui uma semana?',
+        ['Cinco', 'Seis', 'Sete', 'Oito'],
+        'Sete'
+    ],
+    [
+        'Arte',
+        'Quem pintou a Mona Lisa?',
+        ['Leonardo da Vinci', 'Pablo Picasso', 'Claude Monet', 'Vincent van Gogh'],
+        'Leonardo da Vinci'
+    ],
+    [
+        'História do Brasil',
+        'Em que ano ocorreu a Independência do Brasil?',
+        ['1500', '1822', '1888', '1889'],
+        '1822'
+    ],
+    [
+        'Geografia',
+        'Qual é a capital do estado do Rio de Janeiro?',
+        ['Niterói', 'Petrópolis', 'Rio de Janeiro', 'Maricá'],
+        'Rio de Janeiro'
+    ],
+    [
+        'Ciências',
+        'Qual destes animais passa por uma fase de lagarta?',
+        ['Borboleta', 'Gato', 'Sapo', 'Águia'],
+        'Borboleta'
+    ],
+    [
+        'Matemática',
+        'Qual é o resultado de 25 mais 37?',
+        ['52', '62', '72', '82'],
+        '62'
+    ],
+    [
+        'Alimentação',
+        'Qual alimento é produzido pelas abelhas?',
+        ['Mel', 'Queijo', 'Farinha', 'Iogurte'],
+        'Mel'
+    ],
+    [
+        'Geografia',
+        'Qual país possui o formato frequentemente comparado ao de uma bota?',
+        ['Itália', 'França', 'Espanha', 'Grécia'],
+        'Itália'
+    ],
+    [
+        'Tecnologia',
+        'Qual combinação é normalmente utilizada para copiar texto no Windows?',
+        ['Ctrl + C', 'Ctrl + V', 'Ctrl + Z', 'Ctrl + P'],
+        'Ctrl + C'
+    ],
+    [
+        'Esportes',
+        'Qual cartão representa uma expulsão no futebol?',
+        ['Branco', 'Amarelo', 'Vermelho', 'Verde'],
+        'Vermelho'
+    ],
+    [
+        'Ciências',
+        'Qual é o satélite natural da Terra?',
+        ['Lua', 'Sol', 'Marte', 'Plutão'],
+        'Lua'
+    ],
+    [
+        'Brasil',
+        'Quantas unidades federativas o Brasil possui, incluindo o Distrito Federal?',
+        ['25', '26', '27', '28'],
+        '27'
+    ]
 ];
 
+const perguntasMedias = [
+    [
+        'Geografia',
+        'Qual é a capital do Canadá?',
+        ['Toronto', 'Vancouver', 'Ottawa', 'Montreal'],
+        'Ottawa'
+    ],
+    [
+        'História',
+        'Qual civilização construiu Machu Picchu?',
+        ['Maia', 'Asteca', 'Inca', 'Romana'],
+        'Inca'
+    ],
+    [
+        'Ciências',
+        'Qual elemento químico possui o símbolo Fe?',
+        ['Flúor', 'Ferro', 'Fósforo', 'Frâncio'],
+        'Ferro'
+    ],
+    [
+        'Literatura',
+        'Quem escreveu Dom Casmurro?',
+        ['Machado de Assis', 'José de Alencar', 'Graciliano Ramos', 'Carlos Drummond de Andrade'],
+        'Machado de Assis'
+    ],
+    [
+        'Geografia',
+        'Qual linha imaginária divide a Terra nos hemisférios Norte e Sul?',
+        ['Trópico de Câncer', 'Linha do Equador', 'Meridiano de Greenwich', 'Círculo Polar Ártico'],
+        'Linha do Equador'
+    ],
+    [
+        'Biologia',
+        'Qual organela celular é conhecida por produzir grande parte da energia da célula?',
+        ['Mitocôndria', 'Ribossomo', 'Lisossomo', 'Complexo golgiense'],
+        'Mitocôndria'
+    ],
+    [
+        'História do Brasil',
+        'Qual lei aboliu oficialmente a escravidão no Brasil?',
+        ['Lei Áurea', 'Lei de Terras', 'Lei do Ventre Livre', 'Lei Eusébio de Queirós'],
+        'Lei Áurea'
+    ],
+    [
+        'Arte',
+        'A obra O Grito é associada a qual artista?',
+        ['Edvard Munch', 'Claude Monet', 'Salvador Dalí', 'Rembrandt'],
+        'Edvard Munch'
+    ],
+    [
+        'Matemática',
+        'Qual é o valor de 15% de 200?',
+        ['20', '25', '30', '35'],
+        '30'
+    ],
+    [
+        'Tecnologia',
+        'O que significa a sigla CPU?',
+        ['Unidade Central de Processamento', 'Controle Principal do Usuário', 'Central de Programas Universais', 'Unidade de Proteção Computacional'],
+        'Unidade Central de Processamento'
+    ],
+    [
+        'Astronomia',
+        'Qual é o maior planeta do Sistema Solar?',
+        ['Saturno', 'Júpiter', 'Netuno', 'Urano'],
+        'Júpiter'
+    ],
+    [
+        'Geografia',
+        'Qual é a capital da Austrália?',
+        ['Sydney', 'Melbourne', 'Canberra', 'Perth'],
+        'Canberra'
+    ],
+    [
+        'Português',
+        'Qual figura de linguagem atribui características humanas a seres não humanos?',
+        ['Personificação', 'Hipérbole', 'Eufemismo', 'Antítese'],
+        'Personificação'
+    ],
+    [
+        'História',
+        'Em qual país teve início a Revolução Industrial?',
+        ['França', 'Alemanha', 'Inglaterra', 'Itália'],
+        'Inglaterra'
+    ],
+    [
+        'Ciências',
+        'Qual escala é usada para medir a acidez ou alcalinidade de uma solução?',
+        ['Escala Richter', 'Escala pH', 'Escala Celsius', 'Escala Beaufort'],
+        'Escala pH'
+    ],
+    [
+        'Literatura',
+        'Quem escreveu O Pequeno Príncipe?',
+        ['Antoine de Saint-Exupéry', 'Jules Verne', 'Victor Hugo', 'Albert Camus'],
+        'Antoine de Saint-Exupéry'
+    ],
+    [
+        'Geografia',
+        'Qual deserto ocupa grande parte do norte da África?',
+        ['Atacama', 'Saara', 'Gobi', 'Kalahari'],
+        'Saara'
+    ],
+    [
+        'Música',
+        'Qual compositor continuou criando obras mesmo após perder grande parte da audição?',
+        ['Ludwig van Beethoven', 'Antonio Vivaldi', 'Frédéric Chopin', 'Johann Strauss'],
+        'Ludwig van Beethoven'
+    ],
+    [
+        'Biologia',
+        'Qual pigmento é responsável pela cor verde das plantas?',
+        ['Melanina', 'Clorofila', 'Hemoglobina', 'Queratina'],
+        'Clorofila'
+    ],
+    [
+        'História do Brasil',
+        'Quem foi o primeiro presidente do Brasil?',
+        ['Floriano Peixoto', 'Deodoro da Fonseca', 'Prudente de Morais', 'Campos Sales'],
+        'Deodoro da Fonseca'
+    ],
+    [
+        'Tecnologia',
+        'Qual protocolo é utilizado para acessar páginas da Web de forma segura?',
+        ['HTTPS', 'FTP', 'SMTP', 'SSH'],
+        'HTTPS'
+    ],
+    [
+        'Matemática',
+        'Qual número completa a sequência 2, 4, 8, 16, ...?',
+        ['20', '24', '30', '32'],
+        '32'
+    ],
+    [
+        'Geografia',
+        'Qual estreito separa a Europa da África entre Espanha e Marrocos?',
+        ['Bering', 'Gibraltar', 'Ormuz', 'Bósforo'],
+        'Gibraltar'
+    ],
+    [
+        'Ciências',
+        'Qual é o nome do processo pelo qual a água passa do estado líquido para o gasoso?',
+        ['Condensação', 'Evaporação', 'Solidificação', 'Sublimação'],
+        'Evaporação'
+    ],
+    [
+        'Literatura Brasileira',
+        'Quem escreveu Vidas Secas?',
+        ['Graciliano Ramos', 'Jorge Amado', 'Érico Veríssimo', 'Guimarães Rosa'],
+        'Graciliano Ramos'
+    ],
+    [
+        'Esportes',
+        'Em qual esporte os termos birdie, eagle e bogey são utilizados?',
+        ['Golfe', 'Tênis', 'Beisebol', 'Críquete'],
+        'Golfe'
+    ],
+    [
+        'História',
+        'A queda do Muro de Berlim ocorreu em qual ano?',
+        ['1975', '1982', '1989', '1994'],
+        '1989'
+    ],
+    [
+        'Geografia',
+        'Qual país possui a cidade histórica de Petra?',
+        ['Egito', 'Jordânia', 'Turquia', 'Líbano'],
+        'Jordânia'
+    ],
+    [
+        'Química',
+        'Qual é a fórmula química da água?',
+        ['CO₂', 'H₂O', 'O₂', 'NaCl'],
+        'H₂O'
+    ],
+    [
+        'Cinema',
+        'Qual profissional é responsável por coordenar artisticamente a filmagem de um filme?',
+        ['Diretor', 'Projético', 'Exibidor', 'Bilheteiro'],
+        'Diretor'
+    ],
+    [
+        'Brasil',
+        'Qual bioma ocorre principalmente na Região Centro-Oeste e é marcado por savanas?',
+        ['Cerrado', 'Pampa', 'Caatinga', 'Mata de Araucárias'],
+        'Cerrado'
+    ],
+    [
+        'Português',
+        'Na frase “Os alunos estudaram”, qual é o sujeito?',
+        ['Os alunos', 'Estudaram', 'Alunos estudaram', 'Oculto'],
+        'Os alunos'
+    ],
+    [
+        'Astronomia',
+        'Qual planeta é famoso por seu sistema de anéis visível?',
+        ['Marte', 'Saturno', 'Mercúrio', 'Vênus'],
+        'Saturno'
+    ],
+    [
+        'Matemática',
+        'Qual é a área de um retângulo de 8 cm por 5 cm?',
+        ['13 cm²', '26 cm²', '40 cm²', '80 cm²'],
+        '40 cm²'
+    ],
+    [
+        'História',
+        'Qual povo da Antiguidade desenvolveu a democracia em Atenas?',
+        ['Gregos', 'Fenícios', 'Egípcios', 'Persas'],
+        'Gregos'
+    ],
+    [
+        'Tecnologia',
+        'Em desenvolvimento web, qual tecnologia é usada principalmente para estilizar páginas?',
+        ['CSS', 'SQL', 'Git', 'Node.js'],
+        'CSS'
+    ],
+    [
+        'Geografia',
+        'Qual é o rio associado historicamente ao desenvolvimento do Egito Antigo?',
+        ['Danúbio', 'Nilo', 'Tigre', 'Ganges'],
+        'Nilo'
+    ],
+    [
+        'Ciências',
+        'Qual tipo sanguíneo é conhecido como doador universal de hemácias?',
+        ['A positivo', 'AB positivo', 'O negativo', 'B negativo'],
+        'O negativo'
+    ],
+    [
+        'Conhecimentos Gerais',
+        'Qual país presenteou os Estados Unidos com a Estátua da Liberdade?',
+        ['França', 'Reino Unido', 'Itália', 'Espanha'],
+        'França'
+    ],
+    [
+        'História do Brasil',
+        'Qual cidade foi a primeira capital do Brasil?',
+        ['Salvador', 'Rio de Janeiro', 'Brasília', 'Olinda'],
+        'Salvador'
+    ]
+];
+
+const perguntasDificeis = [
+    [
+        'História Antiga',
+        'Qual tratado encerrou oficialmente a Guerra do Peloponeso em 404 a.C.?',
+        ['Paz de Nícias', 'Paz de Antálcidas', 'Tratado de Susa', 'Rendição de Atenas a Esparta'],
+        'Rendição de Atenas a Esparta'
+    ],
+    [
+        'Química',
+        'Qual elemento possui o maior valor de eletronegatividade na escala de Pauling?',
+        ['Oxigênio', 'Flúor', 'Cloro', 'Nitrogênio'],
+        'Flúor'
+    ],
+    [
+        'Literatura Brasileira',
+        'A qual escola literária pertence principalmente a obra Memórias Póstumas de Brás Cubas?',
+        ['Romantismo', 'Realismo', 'Arcadismo', 'Simbolismo'],
+        'Realismo'
+    ],
+    [
+        'Astronomia',
+        'Qual planeta possui o período de rotação mais longo do Sistema Solar?',
+        ['Mercúrio', 'Vênus', 'Urano', 'Netuno'],
+        'Vênus'
+    ],
+    [
+        'Geografia',
+        'Qual é a capital constitucional da Bolívia?',
+        ['La Paz', 'Sucre', 'Santa Cruz de la Sierra', 'Cochabamba'],
+        'Sucre'
+    ],
+    [
+        'Biologia',
+        'Em qual fase da mitose os cromossomos se alinham no plano equatorial da célula?',
+        ['Prófase', 'Metáfase', 'Anáfase', 'Telófase'],
+        'Metáfase'
+    ],
+    [
+        'Física',
+        'Qual grandeza física é medida em tesla no Sistema Internacional?',
+        ['Fluxo magnético', 'Indução magnética', 'Resistência elétrica', 'Carga elétrica'],
+        'Indução magnética'
+    ],
+    [
+        'História do Brasil',
+        'Qual revolta ocorrida entre 1835 e 1840 abalou a província do Pará?',
+        ['Sabinada', 'Cabanagem', 'Balaiada', 'Revolta Praieira'],
+        'Cabanagem'
+    ],
+    [
+        'Filosofia',
+        'Quem escreveu a obra Crítica da Razão Pura?',
+        ['Immanuel Kant', 'René Descartes', 'David Hume', 'Baruch Spinoza'],
+        'Immanuel Kant'
+    ],
+    [
+        'Arte',
+        'Qual movimento artístico foi fundado por Kazimir Malevich?',
+        ['Suprematismo', 'Futurismo', 'Dadaísmo', 'Fauvismo'],
+        'Suprematismo'
+    ],
+    [
+        'Matemática',
+        'Qual é o determinante da matriz 2 por 2 formada pelas linhas [3, 4] e [2, 5]?',
+        ['7', '15', '17', '23'],
+        '7'
+    ],
+    [
+        'Geografia',
+        'Qual país africano é completamente cercado pelo território da África do Sul?',
+        ['Lesoto', 'Essuatíni', 'Botsuana', 'Namíbia'],
+        'Lesoto'
+    ],
+    [
+        'Linguística',
+        'Qual ramo da linguística estuda os sons da fala como unidades distintivas?',
+        ['Semântica', 'Fonologia', 'Pragmática', 'Morfologia'],
+        'Fonologia'
+    ],
+    [
+        'História',
+        'A Batalha de Hastings, decisiva para a conquista normanda da Inglaterra, ocorreu em qual ano?',
+        ['800', '1066', '1215', '1337'],
+        '1066'
+    ],
+    [
+        'Química',
+        'Qual é o número atômico do tungstênio?',
+        ['72', '73', '74', '75'],
+        '74'
+    ],
+    [
+        'Literatura',
+        'Quem escreveu o romance O Processo?',
+        ['Franz Kafka', 'Thomas Mann', 'Hermann Hesse', 'Bertolt Brecht'],
+        'Franz Kafka'
+    ],
+    [
+        'Astronomia',
+        'Qual é o nome da maior lua de Saturno?',
+        ['Europa', 'Titã', 'Tritão', 'Ganímedes'],
+        'Titã'
+    ],
+    [
+        'Biologia',
+        'Qual estrutura do néfron realiza a filtração inicial do sangue?',
+        ['Alça de Henle', 'Glomérulo', 'Túbulo coletor', 'Túbulo distal'],
+        'Glomérulo'
+    ],
+    [
+        'História do Brasil',
+        'A Constituição brasileira conhecida como Constituição da Mandioca foi um projeto elaborado em qual contexto?',
+        ['Assembleia Constituinte de 1823', 'Revolução de 1930', 'República Velha', 'Estado Novo'],
+        'Assembleia Constituinte de 1823'
+    ],
+    [
+        'Música',
+        'Quem compôs o balé A Sagração da Primavera?',
+        ['Igor Stravinsky', 'Piotr Tchaikovsky', 'Sergei Rachmaninoff', 'Claude Debussy'],
+        'Igor Stravinsky'
+    ],
+    [
+        'Física',
+        'Qual partícula mediadora está associada à interação eletromagnética?',
+        ['Glúon', 'Fóton', 'Bóson W', 'Gráviton'],
+        'Fóton'
+    ],
+    [
+        'Geografia',
+        'Qual é o lago mais profundo do mundo?',
+        ['Lago Vitória', 'Lago Baikal', 'Lago Tanganica', 'Mar Cáspio'],
+        'Lago Baikal'
+    ],
+    [
+        'Filosofia',
+        'O conceito de “vontade de potência” está associado a qual filósofo?',
+        ['Friedrich Nietzsche', 'John Locke', 'Auguste Comte', 'Jean-Jacques Rousseau'],
+        'Friedrich Nietzsche'
+    ],
+    [
+        'Arte',
+        'Qual pintor é associado ao tríptico O Jardim das Delícias Terrenas?',
+        ['Hieronymus Bosch', 'Jan van Eyck', 'El Greco', 'Caravaggio'],
+        'Hieronymus Bosch'
+    ],
+    [
+        'Matemática',
+        'Qual é o valor aproximado do número de Euler?',
+        ['1,414', '1,618', '2,718', '3,142'],
+        '2,718'
+    ],
+    [
+        'História',
+        'Qual dinastia governava a China durante as viagens marítimas de Zheng He?',
+        ['Tang', 'Song', 'Ming', 'Qing'],
+        'Ming'
+    ],
+    [
+        'Literatura',
+        'Em qual obra de Dante Alighieri aparecem Inferno, Purgatório e Paraíso?',
+        ['A Divina Comédia', 'Decamerão', 'Orlando Furioso', 'O Príncipe'],
+        'A Divina Comédia'
+    ],
+    [
+        'Tecnologia',
+        'Qual estrutura de dados segue o princípio LIFO?',
+        ['Fila', 'Pilha', 'Árvore binária', 'Grafo'],
+        'Pilha'
+    ],
+    [
+        'Ciências',
+        'Qual camada da atmosfera contém a maior parte do ozônio atmosférico?',
+        ['Troposfera', 'Estratosfera', 'Mesosfera', 'Termosfera'],
+        'Estratosfera'
+    ],
+    [
+        'Geografia',
+        'Qual estreito liga o Mar Negro ao Mar de Mármara?',
+        ['Bósforo', 'Dardanelos', 'Gibraltar', 'Ormuz'],
+        'Bósforo'
+    ],
+    [
+        'História do Brasil',
+        'Qual acordo encerrou a Guerra do Contestado em 1916?',
+        ['Acordo de Limites entre Paraná e Santa Catarina', 'Tratado de Petrópolis', 'Tratado de Tordesilhas', 'Convênio de Taubaté'],
+        'Acordo de Limites entre Paraná e Santa Catarina'
+    ],
+    [
+        'Química',
+        'Qual cientista propôs o princípio da incerteza?',
+        ['Werner Heisenberg', 'Erwin Schrödinger', 'Max Planck', 'Niels Bohr'],
+        'Werner Heisenberg'
+    ],
+    [
+        'Anatomia',
+        'Qual é o menor osso do corpo humano?',
+        ['Estribo', 'Bigorna', 'Martelo', 'Hioide'],
+        'Estribo'
+    ],
+    [
+        'Economia',
+        'Qual economista publicou A Riqueza das Nações em 1776?',
+        ['Adam Smith', 'David Ricardo', 'John Maynard Keynes', 'Thomas Malthus'],
+        'Adam Smith'
+    ],
+    [
+        'Literatura Brasileira',
+        'Quem escreveu o romance Grande Sertão: Veredas?',
+        ['João Guimarães Rosa', 'João Cabral de Melo Neto', 'Euclides da Cunha', 'Lima Barreto'],
+        'João Guimarães Rosa'
+    ],
+    [
+        'Astronomia',
+        'Em qual região do Sistema Solar está localizado Ceres?',
+        ['Cinturão de asteroides', 'Cinturão de Kuiper', 'Nuvem de Oort', 'Heliopausa'],
+        'Cinturão de asteroides'
+    ],
+    [
+        'História',
+        'Qual documento inglês de 1215 limitou o poder do rei João?',
+        ['Magna Carta', 'Petição de Direitos', 'Bill of Rights', 'Ato de Supremacia'],
+        'Magna Carta'
+    ],
+    [
+        'Biologia',
+        'Qual enzima inicia a digestão do amido na boca?',
+        ['Pepsina', 'Amilase salivar', 'Tripsina', 'Lipase pancreática'],
+        'Amilase salivar'
+    ],
+    [
+        'Geografia',
+        'Qual corrente marítima contribui para amenizar o clima da Europa Ocidental?',
+        ['Corrente do Golfo', 'Corrente de Humboldt', 'Corrente de Benguela', 'Corrente das Canárias'],
+        'Corrente do Golfo'
+    ],
+    [
+        'Tecnologia',
+        'Em bancos de dados relacionais, qual forma normal elimina dependências transitivas entre atributos não chave?',
+        ['Primeira forma normal', 'Segunda forma normal', 'Terceira forma normal', 'Forma normal de Boyce-Codd'],
+        'Terceira forma normal'
+    ]
+];
+
+function criarPerguntas(lista, dificuldade, primeiroId) {
+    return lista.map((item, index) => {
+        const [
+            categoria,
+            pergunta,
+            opcoes,
+            correta
+        ] = item;
+
+        return {
+            id: primeiroId + index,
+            dificuldade,
+            categoria,
+            pergunta,
+            opcoes,
+            correta
+        };
+    });
+}
+
+const perguntas = [
+    ...criarPerguntas(
+        perguntasFaceis,
+        'facil',
+        1
+    ),
+
+    ...criarPerguntas(
+        perguntasMedias,
+        'medio',
+        41
+    ),
+
+    ...criarPerguntas(
+        perguntasDificeis,
+        'dificil',
+        81
+    )
+];
+
+const ultimaPerguntaPorGrupo = new Map();
+
 function embaralhar(array) {
-    return [...array].sort(() => Math.random() - 0.5);
+    const copia = [...array];
+
+    for (
+        let index = copia.length - 1;
+        index > 0;
+        index--
+    ) {
+        const randomIndex = Math.floor(
+            Math.random() * (index + 1)
+        );
+
+        [
+            copia[index],
+            copia[randomIndex]
+        ] = [
+            copia[randomIndex],
+            copia[index]
+        ];
+    }
+
+    return copia;
 }
 
 function normalizarDificuldade(valor) {
-    const texto = (valor || '').toLowerCase();
+    const texto = String(valor || '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
 
-    if (texto === 'facil' || texto === 'fácil') return 'facil';
-    if (texto === 'medio' || texto === 'médio') return 'medio';
-    if (texto === 'dificil' || texto === 'difícil') return 'dificil';
+    if (texto === 'facil') {
+        return 'facil';
+    }
+
+    if (texto === 'medio') {
+        return 'medio';
+    }
+
+    if (texto === 'dificil') {
+        return 'dificil';
+    }
 
     return null;
 }
 
 function formatarDificuldade(valor) {
-    if (valor === 'facil') return 'Fácil';
-    if (valor === 'medio') return 'Médio';
-    if (valor === 'dificil') return 'Difícil';
-    return 'Aleatória';
+    if (valor === 'facil') {
+        return 'Fácil 🟢';
+    }
+
+    if (valor === 'medio') {
+        return 'Médio 🟡';
+    }
+
+    if (valor === 'dificil') {
+        return 'Difícil 🔴';
+    }
+
+    return 'Aleatória 🎲';
 }
 
-module.exports = async ({ args, message }) => {
-    const grupoId = message.key.remoteJid;
+function validarPerguntas() {
+    const dificuldades = {
+        facil: 0,
+        medio: 0,
+        dificil: 0
+    };
 
-    const dificuldade = normalizarDificuldade(args[0]);
+    const ids = new Set();
+
+    for (const item of perguntas) {
+        dificuldades[item.dificuldade]++;
+
+        if (ids.has(item.id)) {
+            throw new Error(
+                `ID duplicado no quiz: ${item.id}`
+            );
+        }
+
+        ids.add(item.id);
+
+        if (
+            !Array.isArray(item.opcoes) ||
+            item.opcoes.length !== 4
+        ) {
+            throw new Error(
+                `A pergunta ${item.id} não possui 4 opções.`
+            );
+        }
+
+        if (
+            !item.opcoes.includes(item.correta)
+        ) {
+            throw new Error(
+                `A resposta da pergunta ${item.id} ` +
+                'não está entre as opções.'
+            );
+        }
+
+        if (
+            new Set(item.opcoes).size !== 4
+        ) {
+            throw new Error(
+                `A pergunta ${item.id} possui opções repetidas.`
+            );
+        }
+    }
+
+    if (
+        dificuldades.facil !== 40 ||
+        dificuldades.medio !== 40 ||
+        dificuldades.dificil !== 40
+    ) {
+        throw new Error(
+            'O quiz precisa ter exatamente ' +
+            '40 perguntas em cada dificuldade.'
+        );
+    }
+}
+
+function escolherPergunta(lista, grupoId) {
+    const ultimoId =
+        ultimaPerguntaPorGrupo.get(grupoId);
+
+    let candidatas = lista.filter(
+        item => item.id !== ultimoId
+    );
+
+    if (candidatas.length === 0) {
+        candidatas = lista;
+    }
+
+    const escolhida = candidatas[
+        Math.floor(
+            Math.random() * candidatas.length
+        )
+    ];
+
+    ultimaPerguntaPorGrupo.set(
+        grupoId,
+        escolhida.id
+    );
+
+    return escolhida;
+}
+
+validarPerguntas();
+
+module.exports = async ({
+    args,
+    message
+}) => {
+    const grupoId =
+        message.key.remoteJid;
+
+    const argumento =
+        args[0]?.toLowerCase();
+
+    const pediuAjuda =
+        argumento === 'ajuda' ||
+        argumento === 'help';
+
+    if (pediuAjuda) {
+        return (
+            '🧠 *QUIZ BR — COMO JOGAR*\n\n' +
+            '🎲 `,quiz` — nível aleatório\n' +
+            '🟢 `,quiz facil`\n' +
+            '🟡 `,quiz medio`\n' +
+            '🔴 `,quiz dificil`\n\n' +
+            'Para responder:\n' +
+            '`,responder A`, `B`, `C` ou `D`'
+        );
+    }
+
+    const dificuldade =
+        normalizarDificuldade(argumento);
 
     let lista = perguntas;
 
     if (dificuldade) {
-        lista = perguntas.filter(p => p.dificuldade === dificuldade);
+        lista = perguntas.filter(
+            pergunta =>
+                pergunta.dificuldade ===
+                dificuldade
+        );
     }
 
     if (lista.length === 0) {
-        return '❌ Não encontrei perguntas para essa dificuldade.';
+        return (
+            '❌ Não encontrei perguntas ' +
+            'para essa dificuldade.'
+        );
     }
 
-    const perguntaEscolhida = lista[Math.floor(Math.random() * lista.length)];
+    const perguntaEscolhida =
+        escolherPergunta(
+            lista,
+            grupoId
+        );
 
-    const opcoes = embaralhar(perguntaEscolhida.opcoes);
-    const letras = ['A', 'B', 'C', 'D'];
+    const opcoes =
+        embaralhar(
+            perguntaEscolhida.opcoes
+        );
 
-    const indiceCorreto = opcoes.findIndex(opcao => opcao === perguntaEscolhida.correta);
-    const respostaLetra = letras[indiceCorreto];
+    const letras = [
+        'A',
+        'B',
+        'C',
+        'D'
+    ];
 
-    salvarQuiz(grupoId, {
-        pergunta: perguntaEscolhida.pergunta,
-        categoria: perguntaEscolhida.categoria,
-        dificuldade: perguntaEscolhida.dificuldade,
-        opcoes,
-        respostaCorreta: perguntaEscolhida.correta,
-        respostaLetra
-    });
+    const indiceCorreto =
+        opcoes.findIndex(
+            opcao =>
+                opcao ===
+                perguntaEscolhida.correta
+        );
 
-    let msg = '╭━━━━━━━━━━━━━━━━━━━━━━╮\n';
-    msg += '┃        🧠 *QUIZ BR*        \n';
-    msg += '╰━━━━━━━━━━━━━━━━━━━━━━╯\n\n';
+    const respostaLetra =
+        letras[indiceCorreto];
 
-    msg += `📚 *Categoria:* ${perguntaEscolhida.categoria}\n`;
-    msg += `🎯 *Dificuldade:* ${formatarDificuldade(perguntaEscolhida.dificuldade)}\n\n`;
+    salvarQuiz(
+        grupoId,
+        {
+            perguntaId:
+                perguntaEscolhida.id,
 
-    msg += `❓ *Pergunta:*\n${perguntaEscolhida.pergunta}\n\n`;
+            pergunta:
+                perguntaEscolhida.pergunta,
 
-    msg += '╭─❒ *ALTERNATIVAS*\n';
+            categoria:
+                perguntaEscolhida.categoria,
 
-    opcoes.forEach((opcao, index) => {
-        msg += `│ ${letras[index]}) ${opcao}\n`;
-    });
+            dificuldade:
+                perguntaEscolhida.dificuldade,
 
-    msg += '╰──────────────────────╯\n\n';
+            opcoes,
 
-    msg += '✅ *Para responder:*\n';
-    msg += 'Digite uma das opções:\n\n';
-    msg += '`,responder A`\n';
-    msg += '`,responder B`\n';
-    msg += '`,responder C`\n';
-    msg += '`,responder D`\n\n';
+            respostaCorreta:
+                perguntaEscolhida.correta,
 
-    msg += '💡 *Dica:* também dá pra usar:\n';
-    msg += '`,quiz facil`\n';
-    msg += '`,quiz medio`\n';
-    msg += '`,quiz dificil`';
+            respostaLetra
+        }
+    );
+
+    let msg =
+        '╭━━━━━━━━━━━━━━━━━━━━━━╮\n';
+
+    msg +=
+        '┃        🧠 *QUIZ BR*        ┃\n';
+
+    msg +=
+        '╰━━━━━━━━━━━━━━━━━━━━━━╯\n\n';
+
+    msg +=
+        `📚 *Categoria:* ` +
+        `${perguntaEscolhida.categoria}\n`;
+
+    msg +=
+        `🎯 *Dificuldade:* ` +
+        `${formatarDificuldade(
+            perguntaEscolhida.dificuldade
+        )}\n\n`;
+
+    msg +=
+        `❓ *Pergunta:*\n` +
+        `${perguntaEscolhida.pergunta}\n\n`;
+
+    msg +=
+        '╭─❒ *ALTERNATIVAS*\n';
+
+    opcoes.forEach(
+        (opcao, index) => {
+            msg +=
+                `│ ${letras[index]}) ` +
+                `${opcao}\n`;
+        }
+    );
+
+    msg +=
+        '╰──────────────────────╯\n\n';
+
+    msg +=
+        '✅ *Para responder:*\n';
+
+    msg +=
+        '`,responder A`, `B`, `C` ou `D`\n\n';
+
+    msg +=
+        '💡 *Escolha um nível:*\n';
+
+    msg +=
+        '🟢 `,quiz facil`\n';
+
+    msg +=
+        '🟡 `,quiz medio`\n';
+
+    msg +=
+        '🔴 `,quiz dificil`';
 
     return msg;
 };

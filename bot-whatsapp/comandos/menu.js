@@ -1,106 +1,170 @@
-module.exports = () => `╭━━━━━━━━━━━━━━━━━━━━━━╮
-┃      🤖 *BOT WHATSAPP*      
-┃   _Painel de Comandos_
+module.exports = () => `
+╭━━━━━━━━━━━━━━━━━━━━━━╮
+┃      🤖 *𝙅𝙈 𝘽𝙊𝙏*
+┃   𝙋𝘼𝙄𝙉𝙀𝙇 𝘿𝙀 𝘾𝙊𝙈𝘼𝙉𝘿𝙊𝙎
 ╰━━━━━━━━━━━━━━━━━━━━━━╯
 
-╭─❒ 🎮 *DIVERSÃO*
-│
-│  ▸ ,piada
-│  ▸ ,curiosidade
-│  ▸ ,brincadeira
-│  ▸ ,eununca
-│  ▸ ,adivinha
-│  ▸ ,pecados
-│  ▸ ,quiz
-│  ▸ ,quiz facil
-│  ▸ ,quiz medio
-│  ▸ ,quiz dificil
-|  ▸ ,blackjack
-|  ▸ ,hit
-|  ▸ ,stand
-│  ▸ ,verdade
-│  ▸ ,desafio
-│  ▸ ,vdd
-│
-╰──────────────────────╯
-╭─❒ 🇧🇷 *BRASIL API*
-│
-│  ▸ ,cep 01001000
-│  ▸ ,ddd 21
-│  ▸ ,feriados 2026
-│  ▸ ,banco 001
-│
-╰──────────────────────╯
+┏━━━ 🎭 *𝘿𝙄𝙑𝙀𝙍𝙎𝘼̃𝙊* ━━━┓
+┃
+┃ 😂  ,piada
+┃ 💘  ,cantada
+┃ 🧠  ,curiosidade
+┃ 🙈  ,eununca
+┃ 🎲  ,brincadeira
+┃ 🧩  ,adivinha
+┃ 😈  ,pecados
+┃ ⏳  ,quando <pergunta>
+┃ 💞  ,ship @pessoa1 @pessoa2
+┃
+┗━━━━━━━━━━━━━━━━━━━━━━┛
 
-╭─❒ 🖼️ *MÍDIA & IA*
-│
-│  ▸ ,sticker
-│  ▸ ,imagem
-│  ▸ ,ia
-│
-╰──────────────────────╯
+┏━━━ 🧠 *𝙌𝙐𝙄𝙕 𝘽𝙍* ━━━┓
+┃
+┃ 🎲  ,quiz
+┃ 🟢  ,quiz facil
+┃ 🟡  ,quiz medio
+┃ 🔴  ,quiz dificil
+┃ ✅  ,responder A
+┃
+┃ 📌 Responda usando:
+┃ ,responder A, B, C ou D
+┃
+┗━━━━━━━━━━━━━━━━━━━━━━┛
 
-╭─❒ ⚽ *FUTEBOL*
-│
-│  ▸ ,campeonatos
-│  ▸ ,jogos
-│  ▸ ,tabela
-│  ▸ ,rodadas
-│  ▸ ,rodada
-│  ▸ ,rodadas 1
-│  ▸ ,artilharia
-│
-╰──────────────────────╯
+┏━━━ 🎯 *𝙑𝙀𝙍𝘿𝘼𝘿𝙀 𝙊𝙐 𝘿𝙀𝙎𝘼𝙁𝙄𝙊* ━━━┓
+┃
+┃ 💬  ,verdade
+┃ 🔥  ,desafio
+┃ 🎲  ,vdd
+┃
+┗━━━━━━━━━━━━━━━━━━━━━━┛
 
-╭─❒ 🛡️ *ADMINISTRAÇÃO*
-│
-│  ▸ ,ban @usuário
-│  ▸ ,upadm @usuário
-│  ▸ ,downadm @usuário
-│  ▸ ,open
-│  ▸ ,close
-│  ▸ ,mute @usuário
-│  ▸ ,unmute @usuário
-│
-╰──────────────────────╯
+┏━━━ 🃏 *𝘽𝙇𝘼𝘾𝙆𝙅𝘼𝘾𝙆* ━━━┓
+┃
+┃ 🃏  ,blackjack
+┃ ➕  ,hit
+┃ ✋  ,stand
+┃
+┃ 📌 Comece com ,blackjack
+┃
+┗━━━━━━━━━━━━━━━━━━━━━━┛
 
-╭─❒ ⚠️ *PUNIÇÕES*
-│
-│  ▸ ,punir @usuário
-│  ▸ ,listarpunidos
-│  ▸ ,despunir @usuário
-│
-│  📌 *Regra:* com 3 punições
-│  o usuário é removido do grupo.
-│
-╰──────────────────────╯
+┏━━━ 🎮 *𝘾𝙊𝙊𝙋𝙀𝙍𝘼𝙏𝙄𝙑𝙊* ━━━┓
+┃
+┃ 🤝  ,coop
+┃ 1️⃣  ,eu1
+┃ 2️⃣  ,eu2
+┃
+┗━━━━━━━━━━━━━━━━━━━━━━┛
 
-╭─❒ 🕵️ *PROTEÇÕES*
-│
-│  ▸ ,antidelete
-│  ▸ ,antidelete on
-│  ▸ ,antidelete off
-│
-│  📌 O anti-delete revela
-│  mensagens apagadas no grupo.
-│
-╰──────────────────────╯
+┏━━━ 🖼️ *𝙈𝙄́𝘿𝙄𝘼 & 𝙄𝘼* ━━━┓
+┃
+┃ 🤖  ,ia <pergunta>
+┃ 🎨  ,imagem <descrição>
+┃ 🖼️  ,sticker
+┃ 🔳  ,sticker full
+┃ 🎵  ,play <música>
+┃
+┃ 📌 Para criar figurinha:
+┃ responda uma imagem ou vídeo
+┃ usando ,sticker
+┃
+┃ 📌 ,sticker
+┃ preenche todo o quadrado.
+┃
+┃ 📌 ,sticker full
+┃ mantém a imagem inteira.
+┃
+┗━━━━━━━━━━━━━━━━━━━━━━┛
 
-╭─❒ 📌 *EXEMPLOS DE USO*
-│
-│  ▸ ,sticker
-│     Responda uma foto com o comando.
-│
-│  ▸ ,rodadas 5
-│     Mostra os jogos da rodada 5.
-│
-│  ▸ ,punir @usuário
-│     Adiciona 1 punição ao membro.
-│
-╰──────────────────────╯
+┏━━━ 🇧🇷 *𝘽𝙍𝘼𝙎𝙄𝙇 𝘼𝙋𝙄* ━━━┓
+┃
+┃ 📍  ,cep 24900000
+┃ ☎️  ,ddd 21
+┃ 📅  ,feriados 2026
+┃ 🏦  ,banco 001
+┃
+┗━━━━━━━━━━━━━━━━━━━━━━┛
+
+┏━━━ ⚽ *𝙁𝙐𝙏𝙀𝘽𝙊𝙇* ━━━┓
+┃
+┃ 🏆  ,campeonatos
+┃ ⚽  ,jogos
+┃ 📊  ,tabela
+┃ 🗓️  ,rodadas
+┃ 🔢  ,rodadas 5
+┃ 🥇  ,artilharia
+┃
+┗━━━━━━━━━━━━━━━━━━━━━━┛
+
+┏━━━ 📡 *𝙎𝙏𝘼𝙏𝙐𝙎 𝘿𝘼𝙎 𝘼𝙋𝙄𝙎* ━━━┓
+┃
+┃ 🟢  ,statusapi
+┃ 📈  ,usoapi
+┃
+┗━━━━━━━━━━━━━━━━━━━━━━┛
+
+┏━━━ 👑 *𝘼𝘿𝙈𝙄𝙉𝙄𝙎𝙏𝙍𝘼𝘾̧𝘼̃𝙊* ━━━┓
+┃
+┃ 🚫  ,ban @pessoa
+┃ ⬆️  ,upadm @pessoa
+┃ ⬇️  ,downadm @pessoa
+┃ 🔓  ,open
+┃ 🔒  ,close
+┃ 🔇  ,mute @pessoa
+┃ 🔊  ,unmute @pessoa
+┃
+┃ ⚠️ Apenas administradores
+┃ podem utilizar esta secção.
+┃
+┗━━━━━━━━━━━━━━━━━━━━━━┛
+
+┏━━━ ⚠️ *𝙋𝙐𝙉𝙄𝘾̧𝙊̃𝙀𝙎* ━━━┓
+┃
+┃ ⚠️  ,punir @pessoa
+┃ 📋  ,listarpunidos
+┃ ✅  ,despunir @pessoa
+┃
+┃ 📌 Ao atingir 3 punições,
+┃ o participante é removido.
+┃
+┗━━━━━━━━━━━━━━━━━━━━━━┛
+
+┏━━━ 🕵️ *𝘼𝙉𝙏𝙄-𝘿𝙀𝙇𝙀𝙏𝙀* ━━━┓
+┃
+┃ ⚙️  ,antidelete
+┃ ✅  ,antidelete on
+┃ ❌  ,antidelete off
+┃
+┃ 🔎 Recupera texto, imagem,
+┃ áudio, vídeo, documento
+┃ e figurinha apagados.
+┃
+┃ ⚠️ Apagar a própria mensagem
+┃ adiciona uma punição.
+┃
+┗━━━━━━━━━━━━━━━━━━━━━━┛
 
 ╭━━━━━━━━━━━━━━━━━━━━━━╮
-┃  ✅ *Prefixo:* vírgula ,
-┃  👑 Comandos de admin são restritos
-┃  ⚡ Bot online
-╰━━━━━━━━━━━━━━━━━━━━━━╯`;
+┃        💡 *𝘿𝙄𝘾𝘼𝙎*
+╰━━━━━━━━━━━━━━━━━━━━━━╯
+┃
+┃ ▸ O prefixo do bot é:  ,
+┃
+┃ ▸ Exemplo de pergunta:
+┃   ,quando vou ficar rico?
+┃
+┃ ▸ Exemplo de IA:
+┃   ,ia explique o que é Node.js
+┃
+┃ ▸ Exemplo de rodada:
+┃   ,rodadas 5
+┃
+┃ ▸ Exemplo de música:
+┃   ,play nome da música
+┃
+╭━━━━━━━━━━━━━━━━━━━━━━╮
+┃   ⚡ *𝘽𝙊𝙏 𝙊𝙉𝙇𝙄𝙉𝙀*
+┃   👨‍💻 𝙟𝙢-𝙙𝙚𝙫𝙚𝙡𝙤𝙥𝙚𝙧
+╰━━━━━━━━━━━━━━━━━━━━━━╯
+`;

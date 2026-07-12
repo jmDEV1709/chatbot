@@ -1,10 +1,10 @@
 module.exports = () => `
 ╭━━━━━━━━━━━━━━━━━━━━━━╮
-┃      🤖 *𝙅𝙈 𝘽𝙊𝙏*
-┃   𝙋𝘼𝙄𝙉𝙀𝙇 𝘿𝙀 𝘾𝙊𝙈𝘼𝙉𝘿𝙊𝙎
+┃       🤖 *𝙅𝙈 𝘽𝙊𝙏*
+┃  𝙋𝘼𝙄𝙉𝙀𝙇 𝘿𝙀 𝘾𝙊𝙈𝘼𝙉𝘿𝙊𝙎
 ╰━━━━━━━━━━━━━━━━━━━━━━╯
 
-┏━━━ 🎭 *𝘿𝙄𝙑𝙀𝙍𝙎𝘼̃𝙊* ━━━┓
+┏━━ 🎭 *𝘿𝙄𝙑𝙀𝙍𝙎𝘼̃𝙊* ━━┓
 ┃
 ┃ 😂  ,piada
 ┃ 💘  ,cantada
@@ -18,7 +18,16 @@ module.exports = () => `
 ┃
 ┗━━━━━━━━━━━━━━━━━━━━━━┛
 
-┏━━━ 🧠 *𝙌𝙐𝙄𝙕 𝘽𝙍* ━━━┓
+┏━━ 🔮 *𝙏𝘼𝙍𝙊𝙏* ━━┓
+┃
+┃ 🃏  ,tarot
+┃
+┃ 📌 Retira uma carta e apresenta
+┃ uma interpretação simbólica.
+┃
+┗━━━━━━━━━━━━━━━━━━━━━━┛
+
+┏━━ 🧠 *𝙌𝙐𝙄𝙕 𝘽𝙍* ━━┓
 ┃
 ┃ 🎲  ,quiz
 ┃ 🟢  ,quiz facil
@@ -26,12 +35,15 @@ module.exports = () => `
 ┃ 🔴  ,quiz dificil
 ┃ ✅  ,responder A
 ┃
-┃ 📌 Responda usando:
-┃ ,responder A, B, C ou D
+┃ 📌 Para responder, use:
+┃ ,responder A
+┃ ,responder B
+┃ ,responder C
+┃ ,responder D
 ┃
 ┗━━━━━━━━━━━━━━━━━━━━━━┛
 
-┏━━━ 🎯 *𝙑𝙀𝙍𝘿𝘼𝘿𝙀 𝙊𝙐 𝘿𝙀𝙎𝘼𝙁𝙄𝙊* ━━━┓
+┏━━ 🎯 *𝙑𝙀𝙍𝘿𝘼𝘿𝙀 𝙊𝙐 𝘿𝙀𝙎𝘼𝙁𝙄𝙊* ━━┓
 ┃
 ┃ 💬  ,verdade
 ┃ 🔥  ,desafio
@@ -39,25 +51,26 @@ module.exports = () => `
 ┃
 ┗━━━━━━━━━━━━━━━━━━━━━━┛
 
-┏━━━ 🃏 *𝘽𝙇𝘼𝘾𝙆𝙅𝘼𝘾𝙆* ━━━┓
+┏━━ 🃏 *𝘽𝙇𝘼𝘾𝙆𝙅𝘼𝘾𝙆* ━━┓
 ┃
 ┃ 🃏  ,blackjack
 ┃ ➕  ,hit
 ┃ ✋  ,stand
 ┃
-┃ 📌 Comece com ,blackjack
+┃ 📌 Inicie uma partida usando:
+┃ ,blackjack
 ┃
 ┗━━━━━━━━━━━━━━━━━━━━━━┛
 
-┏━━━ 🎮 *𝘾𝙊𝙊𝙋𝙀𝙍𝘼𝙏𝙄𝙑𝙊* ━━━┓
+┏━━ 🤝 *𝘾𝙊𝙊𝙋𝙀𝙍𝘼𝙏𝙄𝙑𝙊* ━━┓
 ┃
-┃ 🤝  ,coop
+┃ 🎮  ,coop
 ┃ 1️⃣  ,eu1
 ┃ 2️⃣  ,eu2
 ┃
 ┗━━━━━━━━━━━━━━━━━━━━━━┛
 
-┏━━━ 🖼️ *𝙈𝙄́𝘿𝙄𝘼 & 𝙄𝘼* ━━━┓
+┏━━ 🖼️ *𝙈𝙄́𝘿𝙄𝘼 & 𝙄𝘼* ━━┓
 ┃
 ┃ 🤖  ,ia <pergunta>
 ┃ 🎨  ,imagem <descrição>
@@ -65,19 +78,18 @@ module.exports = () => `
 ┃ 🔳  ,sticker full
 ┃ 🎵  ,play <música>
 ┃
-┃ 📌 Para criar figurinha:
-┃ responda uma imagem ou vídeo
-┃ usando ,sticker
+┃ 📌 Responda a uma foto ou
+┃ vídeo usando ,sticker.
 ┃
-┃ 📌 ,sticker
-┃ preenche todo o quadrado.
+┃ ▸ ,sticker
+┃ Modo grande, preenche o quadro.
 ┃
-┃ 📌 ,sticker full
-┃ mantém a imagem inteira.
+┃ ▸ ,sticker full
+┃ Mantém a imagem inteira.
 ┃
 ┗━━━━━━━━━━━━━━━━━━━━━━┛
 
-┏━━━ 🇧🇷 *𝘽𝙍𝘼𝙎𝙄𝙇 𝘼𝙋𝙄* ━━━┓
+┏━━ 🇧🇷 *𝘽𝙍𝘼𝙎𝙄𝙇 𝘼𝙋𝙄* ━━┓
 ┃
 ┃ 📍  ,cep 24900000
 ┃ ☎️  ,ddd 21
@@ -86,7 +98,7 @@ module.exports = () => `
 ┃
 ┗━━━━━━━━━━━━━━━━━━━━━━┛
 
-┏━━━ ⚽ *𝙁𝙐𝙏𝙀𝘽𝙊𝙇* ━━━┓
+┏━━ ⚽ *𝙁𝙐𝙏𝙀𝘽𝙊𝙇* ━━┓
 ┃
 ┃ 🏆  ,campeonatos
 ┃ ⚽  ,jogos
@@ -97,14 +109,14 @@ module.exports = () => `
 ┃
 ┗━━━━━━━━━━━━━━━━━━━━━━┛
 
-┏━━━ 📡 *𝙎𝙏𝘼𝙏𝙐𝙎 𝘿𝘼𝙎 𝘼𝙋𝙄𝙎* ━━━┓
+┏━━ 📡 *𝙎𝙏𝘼𝙏𝙐𝙎 𝘿𝘼𝙎 𝘼𝙋𝙄𝙎* ━━┓
 ┃
 ┃ 🟢  ,statusapi
 ┃ 📈  ,usoapi
 ┃
 ┗━━━━━━━━━━━━━━━━━━━━━━┛
 
-┏━━━ 👑 *𝘼𝘿𝙈𝙄𝙉𝙄𝙎𝙏𝙍𝘼𝘾̧𝘼̃𝙊* ━━━┓
+┏━━ 👑 *𝘼𝘿𝙈𝙄𝙉𝙄𝙎𝙏𝙍𝘼𝘾̧𝘼̃𝙊* ━━┓
 ┃
 ┃ 🚫  ,ban @pessoa
 ┃ ⬆️  ,upadm @pessoa
@@ -114,12 +126,12 @@ module.exports = () => `
 ┃ 🔇  ,mute @pessoa
 ┃ 🔊  ,unmute @pessoa
 ┃
-┃ ⚠️ Apenas administradores
-┃ podem utilizar esta secção.
+┃ ⚠️ Comandos exclusivos
+┃ para administradores.
 ┃
 ┗━━━━━━━━━━━━━━━━━━━━━━┛
 
-┏━━━ ⚠️ *𝙋𝙐𝙉𝙄𝘾̧𝙊̃𝙀𝙎* ━━━┓
+┏━━ ⚠️ *𝙋𝙐𝙉𝙄𝘾̧𝙊̃𝙀𝙎* ━━┓
 ┃
 ┃ ⚠️  ,punir @pessoa
 ┃ 📋  ,listarpunidos
@@ -130,41 +142,39 @@ module.exports = () => `
 ┃
 ┗━━━━━━━━━━━━━━━━━━━━━━┛
 
-┏━━━ 🕵️ *𝘼𝙉𝙏𝙄-𝘿𝙀𝙇𝙀𝙏𝙀* ━━━┓
+┏━━ 🕵️ *𝘼𝙉𝙏𝙄-𝘿𝙀𝙇𝙀𝙏𝙀* ━━┓
 ┃
 ┃ ⚙️  ,antidelete
 ┃ ✅  ,antidelete on
 ┃ ❌  ,antidelete off
 ┃
-┃ 🔎 Recupera texto, imagem,
-┃ áudio, vídeo, documento
-┃ e figurinha apagados.
-┃
-┃ ⚠️ Apagar a própria mensagem
-┃ adiciona uma punição.
+┃ 🔎 Recupera mensagens, imagens,
+┃ vídeos, áudios, documentos
+┃ e figurinhas apagadas.
 ┃
 ┗━━━━━━━━━━━━━━━━━━━━━━┛
 
 ╭━━━━━━━━━━━━━━━━━━━━━━╮
-┃        💡 *𝘿𝙄𝘾𝘼𝙎*
+┃         💡 *𝘿𝙄𝘾𝘼𝙎*
 ╰━━━━━━━━━━━━━━━━━━━━━━╯
 ┃
-┃ ▸ O prefixo do bot é:  ,
+┃ ▸ O prefixo do bot é: ,
 ┃
-┃ ▸ Exemplo de pergunta:
-┃   ,quando vou ficar rico?
+┃ ▸ Pergunta divertida:
+┃ ,quando vou ficar rico?
 ┃
-┃ ▸ Exemplo de IA:
-┃   ,ia explique o que é Node.js
+┃ ▸ Pergunta para a IA:
+┃ ,ia explique o que é Node.js
 ┃
-┃ ▸ Exemplo de rodada:
-┃   ,rodadas 5
+┃ ▸ Consulta de rodada:
+┃ ,rodadas 5
 ┃
-┃ ▸ Exemplo de música:
-┃   ,play nome da música
+┃ ▸ Busca de música:
+┃ ,play nome da música
 ┃
 ╭━━━━━━━━━━━━━━━━━━━━━━╮
-┃   ⚡ *𝘽𝙊𝙏 𝙊𝙉𝙇𝙄𝙉𝙀*
-┃   👨‍💻 𝙟𝙢-𝙙𝙚𝙫𝙚𝙡𝙤𝙥𝙚𝙧
+┃     ⚡ *𝘽𝙊𝙏 𝙊𝙉𝙇𝙄𝙉𝙀*
+┃    👨‍💻 𝙟𝙢-𝙙𝙚𝙫𝙚𝙡𝙤𝙥𝙚𝙧
+┃    🛡️ 𝙍𝙀𝙎𝙋𝙀𝙄𝙏𝙀 𝘼𝙎 𝙍𝙀𝙂𝙍𝘼𝙎
 ╰━━━━━━━━━━━━━━━━━━━━━━╯
 `;

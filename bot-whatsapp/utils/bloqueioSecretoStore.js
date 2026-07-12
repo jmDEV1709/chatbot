@@ -9,7 +9,7 @@ const databaseDir = path.join(
 
 const databasePath = path.join(
     databaseDir,
-    'castigos.json'
+    'bloqueios-secretos.json'
 );
 
 function ensureDatabase() {
@@ -43,16 +43,18 @@ function readDatabase() {
 
         const data = JSON.parse(content);
 
-        return (
-            data &&
-            typeof data === 'object' &&
-            !Array.isArray(data)
-        )
-            ? data
-            : {};
+        if (
+            !data ||
+            typeof data !== 'object' ||
+            Array.isArray(data)
+        ) {
+            return {};
+        }
+
+        return data;
     } catch (error) {
         console.error(
-            'Erro ao ler castigos.json:',
+            'Erro ao ler bloqueios secretos:',
             error
         );
 
@@ -90,31 +92,34 @@ function normalizeId(value) {
         .replace(/\D/g, '');
 }
 
-function normalizeGroupId(groupId) {
-    return String(groupId || '').trim();
+function getUniqueIds(values) {
+    const list = Array.isArray(values)
+        ? values.flat(Infinity)
+        : [values];
+
+    return [
+        ...new Set(
+            list
+                .map(normalizeId)
+                .filter(Boolean)
+        )
+    ];
 }
 
-function uniqueIds(ids) {
-    const normalized = ids
-        .flat(Infinity)
-        .map(normalizeId)
-        .filter(Boolean);
-
-    return [...new Set(normalized)];
-}
-
-function castigar(groupId, userIds) {
+function bloquearSecretamente(
+    groupId,
+    userIds
+) {
     const groupKey =
-        normalizeGroupId(groupId);
+        String(groupId || '').trim();
 
-    const ids =
-        uniqueIds(
-            Array.isArray(userIds)
-                ? userIds
-                : [userIds]
-        );
+    const normalizedIds =
+        getUniqueIds(userIds);
 
-    if (!groupKey || ids.length === 0) {
+    if (
+        !groupKey ||
+        normalizedIds.length === 0
+    ) {
         return false;
     }
 
@@ -130,7 +135,7 @@ function castigar(groupId, userIds) {
                 .map(normalizeId)
                 .filter(Boolean),
 
-            ...ids
+            ...normalizedIds
         ])
     ];
 
@@ -139,18 +144,20 @@ function castigar(groupId, userIds) {
     return true;
 }
 
-function descastigar(groupId, userIds) {
+function desbloquearSecretamente(
+    groupId,
+    userIds
+) {
     const groupKey =
-        normalizeGroupId(groupId);
+        String(groupId || '').trim();
 
-    const ids =
-        uniqueIds(
-            Array.isArray(userIds)
-                ? userIds
-                : [userIds]
-        );
+    const normalizedIds =
+        getUniqueIds(userIds);
 
-    if (!groupKey || ids.length === 0) {
+    if (
+        !groupKey ||
+        normalizedIds.length === 0
+    ) {
         return false;
     }
 
@@ -160,15 +167,13 @@ function descastigar(groupId, userIds) {
         return false;
     }
 
-    const idsSet = new Set(ids);
-
-    const previousLength =
-        database[groupKey].length;
+    const idsToRemove =
+        new Set(normalizedIds);
 
     database[groupKey] =
         database[groupKey].filter(
             savedId =>
-                !idsSet.has(
+                !idsToRemove.has(
                     normalizeId(savedId)
                 )
         );
@@ -179,51 +184,45 @@ function descastigar(groupId, userIds) {
 
     writeDatabase(database);
 
-    return (
-        previousLength !==
-        (database[groupKey]?.length || 0)
-    );
+    return true;
 }
 
-function isCastigado(groupId, userIds) {
+function isBloqueadoSecretamente(
+    groupId,
+    userIds
+) {
     const groupKey =
-        normalizeGroupId(groupId);
+        String(groupId || '').trim();
 
-    const ids =
-        uniqueIds(
-            Array.isArray(userIds)
-                ? userIds
-                : [userIds]
-        );
+    const normalizedIds =
+        getUniqueIds(userIds);
 
-    if (!groupKey || ids.length === 0) {
+    if (
+        !groupKey ||
+        normalizedIds.length === 0
+    ) {
         return false;
     }
 
     const database = readDatabase();
 
-    const savedIds =
-        database[groupKey];
-
-    if (!Array.isArray(savedIds)) {
+    if (!Array.isArray(database[groupKey])) {
         return false;
     }
 
-    const savedSet = new Set(
-        savedIds
+    const savedIds = new Set(
+        database[groupKey]
             .map(normalizeId)
             .filter(Boolean)
     );
 
-    return ids.some(
-        id => savedSet.has(id)
+    return normalizedIds.some(
+        id => savedIds.has(id)
     );
 }
 
 module.exports = {
-    castigar,
-    descastigar,
-    isCastigado,
-    normalizeId,
-    uniqueIds
+    bloquearSecretamente,
+    desbloquearSecretamente,
+    isBloqueadoSecretamente
 };

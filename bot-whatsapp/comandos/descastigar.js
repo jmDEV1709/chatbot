@@ -1,27 +1,69 @@
-const { descastigar } = require('../utils/castigoStore');
+const {
+    descastigar
+} = require('../utils/castigoStore');
 
-function getMentionedUser(message) {
-    const msg = message?.message;
+function getMentionedIds(message) {
+    const content =
+        message?.message || {};
 
-    const mentionedJids =
-        msg?.extendedTextMessage?.contextInfo?.mentionedJid ||
-        msg?.imageMessage?.contextInfo?.mentionedJid ||
-        msg?.videoMessage?.contextInfo?.mentionedJid ||
-        [];
+    const contextInfo =
+        content
+            ?.extendedTextMessage
+            ?.contextInfo ||
+        content
+            ?.imageMessage
+            ?.contextInfo ||
+        content
+            ?.videoMessage
+            ?.contextInfo ||
+        content
+            ?.documentMessage
+            ?.contextInfo ||
+        {};
 
-    return mentionedJids[0] || null;
+    const mentioned =
+        Array.isArray(
+            contextInfo.mentionedJid
+        )
+            ? contextInfo.mentionedJid
+            : [];
+
+    return [
+        ...mentioned,
+        contextInfo.participant,
+        contextInfo.participantAlt
+    ].filter(Boolean);
 }
 
-module.exports = async ({ message }) => {
-    const groupId = message?.key?.remoteJid;
-    const mentionedUser = getMentionedUser(message);
+module.exports = async ({
+    message
+}) => {
+    const groupId =
+        message?.key?.remoteJid;
 
-    if (!groupId || !mentionedUser) {
-        return '❌ Marque a pessoa que deseja retirar do castigo.\n\nExemplo: ,descastigar @pessoa';
+    const mentionedIds =
+        getMentionedIds(message);
+
+    if (!groupId) {
+        return '❌ Não consegui identificar o grupo.';
     }
 
-    descastigar(groupId, mentionedUser);
+    if (mentionedIds.length === 0) {
+        return (
+            '❌ Marque uma pessoa.\n\n' +
+            'Exemplo:\n' +
+            '`,descastigar @pessoa`'
+        );
+    }
 
-    // Sem retorno: o bot não envia mensagem quando o castigo é removido.
+    /*
+     * Mesmo que a pessoa não esteja castigada,
+     * o comando permanece silencioso.
+     */
+    descastigar(
+        groupId,
+        mentionedIds
+    );
+
     return null;
 };

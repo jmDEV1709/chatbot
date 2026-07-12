@@ -3,6 +3,7 @@ const respostas = [
     'Amanhã',
     'Daqui a 7 dias',
     'Daqui a duas semanas',
+    '23 dias',
     'Daqui a 1 mês',
     'Daqui a 3 meses',
     'Daqui a 6 meses',

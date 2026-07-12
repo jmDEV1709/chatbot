@@ -4,3 +4,5 @@ database/auth/
 database/bot.lock
 *.log
 database/castigos.json
+database/bloqueios-secretos.json
+database/bloqueios-secretos.json.tmp

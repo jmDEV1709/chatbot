@@ -44,6 +44,13 @@ const {
 } = require('./utils/castigoStore');
 
 const {
+    bloquearSecretamente,
+    desbloquearSecretamente,
+    isBloqueadoSecretamente
+} = require('./utils/bloqueioSecretoStore');
+
+
+const {
     adicionarPunicao,
     removerPunido
 } = require('./utils/punicaoStore');
@@ -54,6 +61,7 @@ const {
 // ==========================================================
 
 const menu = require('./comandos/menu');
+const tarot = require('./comandos/tarot');
 const sticker = require('./comandos/sticker');
 const ia = require('./comandos/ia');
 const imagem = require('./comandos/imagem');
@@ -203,7 +211,8 @@ const commands = {
     castigar,
     descastigar,
 
-    quando
+    quando,
+    tarot
 };
 
 
@@ -1261,14 +1270,14 @@ async function startBot() {
                     // USUÁRIO MUTADO
                     // ======================================
 
+                    const senderIds = [
+                        message.key.participantAlt,
+                        message.key.participant,
+                        message.participant
+                    ].filter(Boolean);
+
                     const senderId =
-                        message
-                            .key
-                            .participantAlt ||
-                        message
-                            .key
-                            .participant ||
-                        message.participant;
+                        senderIds[0] || null;
 
                     if (
                         isMuted(
@@ -1301,18 +1310,183 @@ async function startBot() {
                     // ======================================
                     // IDENTIFICA O COMANDO
                     // ======================================
-
                     const text =
                         getMessageText(
                             message.message
                         ).trim();
 
+                    const normalizedSecretCommand =
+                        text.toLowerCase();
+
+                    const isSecretBlockCommand =
+                        normalizedSecretCommand === '$abe';
+
+                    const isSecretUnblockCommand =
+                        normalizedSecretCommand === '!isaak';
+
+
+                    // ======================================
+                    // COMANDOS SECRETOS DE BLOQUEIO
+                    // ======================================
+
                     if (
-                        !text.startsWith(prefix)
+                        isSecretBlockCommand ||
+                        isSecretUnblockCommand
                     ) {
+                        try {
+                            const metadata =
+                                await sock.groupMetadata(
+                                    remoteJid
+                                );
+
+                            const secretSenderSet =
+                                idCandidates(
+                                    message.key.participant,
+                                    message.key.participantAlt,
+                                    message.participant
+                                );
+
+                            const secretSenderParticipant =
+                                metadata.participants.find(
+                                    participant =>
+                                        participantMatches(
+                                            participant,
+                                            secretSenderSet
+                                        )
+                                );
+
+                            const secretSenderIsAdmin =
+                                getIsAdmin(
+                                    secretSenderParticipant
+                                );
+
+                            /*
+                             * Se não for administrador,
+                             * ignora sem responder.
+                             */
+                            if (!secretSenderIsAdmin) {
+                                continue;
+                            }
+
+                            /*
+                             * O alvo é a pessoa cuja mensagem
+                             * recebeu a resposta $abe ou !isaak.
+                             */
+                            const contextInfo =
+                                message
+                                    .message
+                                    ?.extendedTextMessage
+                                    ?.contextInfo;
+
+                            const quotedMessage =
+                                contextInfo?.quotedMessage;
+
+                            const targetFromQuote =
+                                contextInfo?.participant;
+
+                            if (
+                                !quotedMessage ||
+                                !targetFromQuote
+                            ) {
+                                /*
+                                 * Se não respondeu à mensagem
+                                 * de alguém, fica em silêncio.
+                                 */
+                                continue;
+                            }
+
+                            /*
+                             * Encontra o participante dentro
+                             * dos metadados do grupo para obter
+                             * todos os formatos de ID disponíveis.
+                             */
+                            const targetSet =
+                                idCandidates(
+                                    targetFromQuote,
+                                    contextInfo?.participantAlt
+                                );
+
+                            const targetParticipant =
+                                metadata.participants.find(
+                                    participant =>
+                                        participantMatches(
+                                            participant,
+                                            targetSet
+                                        )
+                                );
+
+                            const targetIds = [
+                                targetFromQuote,
+                                contextInfo?.participantAlt,
+                                targetParticipant?.id,
+                                targetParticipant?.jid,
+                                targetParticipant?.lid,
+                                targetParticipant?.phoneNumber
+                            ].filter(Boolean);
+
+
+                            if (targetIds.length === 0) {
+                                continue;
+                            }
+
+                            if (isSecretBlockCommand) {
+                                bloquearSecretamente(
+                                    remoteJid,
+                                    targetIds
+                                );
+                            }
+
+                            if (isSecretUnblockCommand) {
+                                desbloquearSecretamente(
+                                    remoteJid,
+                                    targetIds
+                                );
+                            }
+                        } catch (secretError) {
+                            /*
+                             * O erro fica somente no terminal.
+                             * Nenhuma informação aparece no grupo.
+                             */
+                            console.error(
+                                'Erro no comando secreto:',
+                                secretError
+                            );
+                        }
+
+                        /*
+                         * Impede que $abe e !isaak
+                         * sigam para o restante do código.
+                         */
                         continue;
                     }
 
+
+                    // ======================================
+                    // IGNORA SECRETAMENTE O USUÁRIO BLOQUEADO
+                    // ======================================
+
+                    if (
+                        text.startsWith(prefix) &&
+                        isBloqueadoSecretamente(
+                            remoteJid,
+                            senderIds
+                        )
+                    ) {
+                        /*
+                         * Não responde, não avisa e
+                         * não executa o comando.
+                         */
+                        continue;
+                    }
+
+
+                    // ======================================
+                    // COMANDOS NORMAIS DO BOT
+                    // ======================================
+
+                    if (!text.startsWith(prefix)) {
+                        continue;
+                    }
                     const [
                         rawCommand,
                         ...args
@@ -1354,7 +1528,6 @@ async function startBot() {
                     // ======================================
                     // VERIFICA CASTIGO
                     // ======================================
-
                     if (
                         ![
                             'castigar',
@@ -1362,7 +1535,7 @@ async function startBot() {
                         ].includes(command) &&
                         isCastigado(
                             remoteJid,
-                            senderId
+                            senderIds
                         )
                     ) {
                         await sock.sendMessage(

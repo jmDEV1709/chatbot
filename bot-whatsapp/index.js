@@ -59,7 +59,8 @@ const {
 // ==========================================================
 // IMPORTAÇÃO DOS COMANDOS
 // ==========================================================
-
+const insta = require('./comandos/insta');
+const tk = require('./comandos/tk');
 const menu = require('./comandos/menu');
 const tarot = require('./comandos/tarot');
 const sticker = require('./comandos/sticker');
@@ -212,7 +213,9 @@ const commands = {
     descastigar,
 
     quando,
-    tarot
+    tarot,
+    insta,
+    tk
 };
 
 

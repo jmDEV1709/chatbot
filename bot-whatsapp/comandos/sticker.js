@@ -163,7 +163,7 @@ module.exports = async ({
                 buffer,
                 {
                     pack:
-                        'ISAAK DITADOR',
+                        'ISAAC-DITADOR',
 
                     author:
                         'jm-developer',
@@ -173,8 +173,8 @@ module.exports = async ({
 
                     quality:
                         isVideo
-                            ? 60
-                            : 90,
+                            ? 40
+                            : 80,
 
                     /*
                      * Fundo transparente para o modo FULL.

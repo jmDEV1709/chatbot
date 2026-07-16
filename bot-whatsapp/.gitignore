@@ -6,3 +6,7 @@ database/bot.lock
 database/castigos.json
 database/bloqueios-secretos.json
 database/bloqueios-secretos.json.tmp
+cookies.txt
+database/punidos.json
+database/muted.json
+database/antidelete.json

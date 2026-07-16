@@ -21,9 +21,12 @@ module.exports = () => `
 ┏━━ 🔮 *𝙏𝘼𝙍𝙊𝙏* ━━┓
 ┃
 ┃ 🃏  ,tarot
+┃ 🃏  ,tarot 3
+┃ 🃏  ,tarot 5
 ┃
-┃ 📌 Retira uma carta e apresenta
-┃ uma interpretação simbólica.
+┃ 📌 Retira cartas com interpretação
+┃ simbólica e possibilidade de
+┃ carta normal ou invertida.
 ┃
 ┗━━━━━━━━━━━━━━━━━━━━━━┛
 
@@ -77,6 +80,8 @@ module.exports = () => `
 ┃ 🖼️  ,sticker
 ┃ 🔳  ,sticker full
 ┃ 🎵  ,play <música>
+┃ 📸  ,insta <link>
+┃ 🎬  ,tk <link>
 ┃
 ┃ 📌 Responda a uma foto ou
 ┃ vídeo usando ,sticker.
@@ -86,6 +91,9 @@ module.exports = () => `
 ┃
 ┃ ▸ ,sticker full
 ┃ Mantém a imagem inteira.
+┃
+┃ ⚠️ Use downloads apenas com
+┃ conteúdos permitidos/autorizados.
 ┃
 ┗━━━━━━━━━━━━━━━━━━━━━━┛
 
@@ -125,9 +133,14 @@ module.exports = () => `
 ┃ 🔒  ,close
 ┃ 🔇  ,mute @pessoa
 ┃ 🔊  ,unmute @pessoa
+┃ 😈  ,castigar @pessoa
+┃ ✅  ,descastigar @pessoa
 ┃
 ┃ ⚠️ Comandos exclusivos
 ┃ para administradores.
+┃
+┃ 📌 Ao banir alguém, o bot
+┃ envia aviso no grupo e áudio.
 ┃
 ┗━━━━━━━━━━━━━━━━━━━━━━┛
 
@@ -140,6 +153,9 @@ module.exports = () => `
 ┃ 📌 Ao atingir 3 punições,
 ┃ o participante é removido.
 ┃
+┃ 🛡️ Usuários protegidos não
+┃ podem ser punidos ou banidos.
+┃
 ┗━━━━━━━━━━━━━━━━━━━━━━┛
 
 ┏━━ 🕵️ *𝘼𝙉𝙏𝙄-𝘿𝙀𝙇𝙀𝙏𝙀* ━━┓
@@ -151,6 +167,9 @@ module.exports = () => `
 ┃ 🔎 Recupera mensagens, imagens,
 ┃ vídeos, áudios, documentos
 ┃ e figurinhas apagadas.
+┃
+┃ ⚠️ Quem apagar mensagem pode
+┃ receber punição automática.
 ┃
 ┗━━━━━━━━━━━━━━━━━━━━━━┛
 
@@ -171,6 +190,9 @@ module.exports = () => `
 ┃
 ┃ ▸ Busca de música:
 ┃ ,play nome da música
+┃
+┃ ▸ Leitura de tarot:
+┃ ,tarot 3
 ┃
 ╭━━━━━━━━━━━━━━━━━━━━━━╮
 ┃     ⚡ *𝘽𝙊𝙏 𝙊𝙉𝙇𝙄𝙉𝙀*

@@ -22,6 +22,7 @@ const {
 } = require('@whiskeysockets/baileys');
 
 const fs = require('fs');
+const path = require('path');
 const qrcode = require('qrcode-terminal');
 
 const { prefix } = require('./config');
@@ -54,6 +55,9 @@ const {
     adicionarPunicao,
     removerPunido
 } = require('./utils/punicaoStore');
+
+
+const { isProtectedUser } = require('./utils/protectedUsers');
 
 
 // ==========================================================
@@ -653,6 +657,60 @@ function getIsAdmin(participant) {
 // ==========================================================
 // ENVIA A MÍDIA RECUPERADA
 // ==========================================================
+// ==========================================================
+// AVISO DE BANIMENTO
+// ==========================================================
+const AUDIO_BAN_PATH = path.join(__dirname, 'media', 'banimento.mpeg');
+
+function getAudioMimetype(filePath) {
+    const ext = path.extname(filePath).toLowerCase();
+
+    if (ext === '.ogg') {
+        return 'audio/ogg; codecs=opus';
+    }
+
+    if (ext === '.mp3' || ext === '.mpeg') {
+        return 'audio/mpeg';
+    }
+
+    if (ext === '.m4a' || ext === '.mp4') {
+        return 'audio/mp4';
+    }
+
+    return 'audio/mpeg';
+}
+
+function getMentionNumber(jid) {
+    return String(jid || '')
+        .split('@')[0]
+        .split(':')[0];
+}
+
+async function anunciarBanimento(groupId, participant) {
+    try {
+        const number = getMentionNumber(participant);
+
+        await sock.sendMessage(groupId, {
+            text: `🚫 @${number} foi banido do grupo.`,
+            mentions: [participant]
+        });
+
+        if (fs.existsSync(AUDIO_BAN_PATH)) {
+            await sock.sendMessage(groupId, {
+                audio: fs.readFileSync(AUDIO_BAN_PATH),
+                mimetype: getAudioMimetype(AUDIO_BAN_PATH),
+                ptt: true
+            });
+        } else {
+            console.log(
+                'Áudio de banimento não encontrado em:',
+                AUDIO_BAN_PATH
+            );
+        }
+    } catch (error) {
+        console.error('Erro ao anunciar banimento:', error);
+    }
+}
 
 async function resendDeletedMedia(
     remoteJid,
@@ -893,7 +951,32 @@ async function startBot() {
         }
     );
 
+    // ======================================================
+    // PARTICIPANTE REMOVIDO / BANIDO
+    // ======================================================
+    sock.ev.on(
+        'group-participants.update',
+        async (event) => {
+            try {
+                const groupId = event.id;
+                const action = event.action;
+                const participants = event.participants || [];
 
+                if (!groupId || action !== 'remove') {
+                    return;
+                }
+
+                for (const participant of participants) {
+                    await anunciarBanimento(groupId, participant);
+                }
+            } catch (error) {
+                console.error(
+                    'Erro no evento de participante removido:',
+                    error
+                );
+            }
+        }
+    );
     // ======================================================
     // RECEBIMENTO DE MENSAGENS
     // ======================================================
@@ -1045,6 +1128,19 @@ async function startBot() {
                                 // ==========================
 
                                 if (
+                                    deletedOwnMessage &&
+                                    originalAuthor &&
+                                    isProtectedUser(
+                                        originalAuthor,
+                                        original.participant,
+                                        original.participantAlt,
+                                        protocolMsg.key?.participant
+                                    )
+                                ) {
+                                    aviso +=
+                                        '\n\n🛡️ *Tenta de novo*\n' +
+                                        'Ta achando que vai punir quem ta no controle?.';
+                                } else if (
                                     deletedOwnMessage &&
                                     originalAuthor
                                 ) {
@@ -1273,6 +1369,9 @@ async function startBot() {
                     // USUÁRIO MUTADO
                     // ======================================
 
+                    // ======================================
+                    // USUÁRIO MUTADO
+                    // ======================================
                     const senderIds = [
                         message.key.participantAlt,
                         message.key.participant,
@@ -1282,26 +1381,31 @@ async function startBot() {
                     const senderId =
                         senderIds[0] || null;
 
-                    if (
-                        isMuted(
-                            remoteJid,
-                            senderId
-                        )
-                    ) {
+                    const usuarioEstaMutado = senderIds.some(id =>
+                        isMuted(remoteJid, id)
+                    );
+
+                    if (usuarioEstaMutado) {
                         try {
+                            const participant =
+                                message.key.participant ||
+                                message.participant ||
+                                senderId;
+
                             await sock.sendMessage(
                                 remoteJid,
                                 {
-                                    delete:
-                                        message.key
+                                    delete: {
+                                        remoteJid,
+                                        fromMe: false,
+                                        id: message.key.id,
+                                        participant
+                                    }
                                 }
                             );
-                        } catch (
-                        muteError
-                        ) {
+                        } catch (muteError) {
                             console.error(
-                                'Erro ao apagar mensagem ' +
-                                'de usuário mutado:',
+                                'Erro ao apagar mensagem de usuário mutado:',
                                 muteError
                             );
                         }

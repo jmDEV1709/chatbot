@@ -173,7 +173,7 @@ module.exports = async ({
 
                     quality:
                         isVideo
-                            ? 40
+                            ? 30
                             : 80,
 
                     /*

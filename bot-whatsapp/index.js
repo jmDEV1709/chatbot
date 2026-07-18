@@ -94,6 +94,8 @@ const despunir = require('./comandos/despunir');
 const antidelete = require('./comandos/antidelete');
 
 const jogos = require('./comandos/jogos');
+const camp = require('./comandos/camp');
+const entrar = require('./comandos/entrar');
 
 const tabela = require('./comandos/tabela');
 const campeonatos = require('./comandos/campeonatos');
@@ -174,6 +176,8 @@ const commands = {
     antidelete,
 
     jogos,
+    camp,
+    entrar,
 
     tabela,
     campeonatos,
@@ -240,7 +244,9 @@ const adminOnly = [
     'listarpunidos',
     'antidelete',
     'castigar',
-    'descastigar'
+    'descastigar',
+    'camp',
+    'entrar'
 ];
 
 

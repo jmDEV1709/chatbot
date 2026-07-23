@@ -29,7 +29,7 @@ module.exports = async ({ args, message }) => {
     if (!coord) {
         return (
             '❌ Coordenada inválida.\n' +
-            'Use letra (a-p) + número (1-16)\n' +
+            'Use letra (a-h) + número (1-8)\n' +
             'Ex: ,shoot a2'
         );
     }

@@ -1,5 +1,5 @@
-const BOARD_SIZE = 16;
-const COLUMNS = 'abcdefghijklmnop';
+const BOARD_SIZE = 8;
+const COLUMNS = 'abcdefgh';
 
 const FLEET = [
     { name: 'Porta-Aviões', size: 5 },
@@ -111,7 +111,7 @@ function parseCoordinate(text) {
     const match = String(text || '')
         .trim()
         .toLowerCase()
-        .match(/^([a-p])(1[0-6]|[1-9])$/);
+        .match(/^([a-h])([1-8])$/);
 
     if (!match) {
         return null;
@@ -120,37 +120,11 @@ function parseCoordinate(text) {
     const col = COLUMNS.indexOf(match[1]);
     const row = parseInt(match[2], 10) - 1;
 
-    return { row, col, label: `${match[1]}${match[2]}` };
-}
-
-function fireShot(board, row, col) {
-    const key = `${row},${col}`;
-
-    if (board.shots.has(key)) {
-        return { alreadyShot: true };
-    }
-
-    const shipId = board.grid[row][col];
-
-    if (!shipId) {
-        board.shots.set(key, 'miss');
-        return { hit: false };
-    }
-
-    board.shots.set(key, 'hit');
-
-    const ship = board.ships.find(s => s.id === shipId);
-    ship.hits.add(key);
-
-    const sunk = ship.hits.size === ship.cells.length;
-
-    return { hit: true, ship, sunk };
-}
-
-function allSunk(board) {
-    return board.ships.every(
-        ship => ship.hits.size === ship.cells.length
-    );
+    return {
+        row,
+        col,
+        label: `${match[1]}${match[2]}`
+    };
 }
 
 function renderBoard(board) {
@@ -159,9 +133,11 @@ function renderBoard(board) {
     let tiros = 0;
     let acertos = 0;
 
-    lines.push('🚢 BATALHA NAVAL');
+    lines.push('╔════════════════════╗');
+    lines.push('║ 🚢 BATALHA NAVAL ║');
+    lines.push('╚════════════════════╝');
     lines.push('');
-    lines.push('   A B C D E F G H I J K L M N O P');
+    lines.push('   A B C D E F G H');
     lines.push('');
 
     for (let r = 0; r < BOARD_SIZE; r++) {
@@ -196,8 +172,6 @@ function renderBoard(board) {
     lines.push('⬜ Desconhecido');
     lines.push('🌊 Água');
     lines.push('💥 Acerto');
-    lines.push('');
-    lines.push('Use ,shoot <letra><número> para atirar.');
     lines.push('');
 
     return lines.join('\n');

@@ -154,30 +154,53 @@ function allSunk(board) {
 }
 
 function renderBoard(board) {
-    const header = '   ' + COLUMNS.split('').join(' ');
-    const lines = [header];
+    const lines = [];
+
+    let tiros = 0;
+    let acertos = 0;
+
+    lines.push('╔══════════════════════════════╗');
+    lines.push('║       🚢 BATALHA NAVAL       ║');
+    lines.push('╚══════════════════════════════╝');
+    lines.push('');
+    lines.push('   🇦 🇧 🇨 🇩 🇪 🇫 🇬 🇭 🇮 🇯 🇰 🇱 🇲 🇳 🇴 🇵');
+    lines.push('');
 
     for (let r = 0; r < BOARD_SIZE; r++) {
-        const rowLabel = String(r + 1).padStart(2, ' ');
-        const cells = [];
+        const linha = [];
 
         for (let c = 0; c < BOARD_SIZE; c++) {
             const key = `${r},${c}`;
-            const shotResult = board.shots.get(key);
+            const shot = board.shots.get(key);
 
-            if (shotResult === 'hit') {
-                cells.push('💥');
-            } else if (shotResult === 'miss') {
-                cells.push('▫️');
+            if (shot === 'hit') {
+                linha.push('💥');
+                tiros++;
+                acertos++;
+            } else if (shot === 'miss') {
+                linha.push('🌊');
+                tiros++;
             } else {
-                cells.push('🌊');
+                linha.push('🟦');
             }
         }
 
-        lines.push(`${rowLabel} ${cells.join(' ')}`);
+        const numero = String(r + 1).padStart(2, '0');
+        lines.push(`${numero} ${linha.join(' ')}`);
     }
 
-    return '```\n' + lines.join('\n') + '\n```';
+    lines.push('');
+    lines.push('━━━━━━━━━━━━━━━━━━━━');
+    lines.push(`🎯 Tiros: ${tiros}`);
+    lines.push(`💥 Acertos: ${acertos}`);
+    lines.push(`❌ Erros: ${tiros - acertos}`);
+    lines.push('━━━━━━━━━━━━━━━━━━━━');
+    lines.push('');
+    lines.push('🟦 Desconhecido');
+    lines.push('🌊 Água');
+    lines.push('💥 Acerto');
+
+    return lines.join('\n');
 }
 
 module.exports = {

@@ -2,6 +2,8 @@ const {
     castigar
 } = require('../utils/castigoStore');
 
+const { isProtectedUser } = require('../utils/protectedUsers');
+
 function getMentionedIds(message) {
     const content =
         message?.message || {};
@@ -59,6 +61,10 @@ module.exports = async ({
             'Exemplo:\n' +
             '`,castigar @pessoa`'
         );
+    }
+
+    if (isProtectedUser(mentionedIds)) {
+        return '🛡️ Esse usuário é protegido e não pode receber castigo.';
     }
 
     const success =

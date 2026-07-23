@@ -63,6 +63,12 @@ const { isProtectedUser } = require('./utils/protectedUsers');
 // ==========================================================
 // IMPORTAÇÃO DOS COMANDOS
 // ==========================================================
+const naval = require('./comandos/naval');
+const shoot = require('./comandos/shoot');
+const exitNaval = require('./comandos/exit');
+
+
+const proteger = require('./comandos/proteger');
 const insta = require('./comandos/insta');
 const tk = require('./comandos/tk');
 const menu = require('./comandos/menu');
@@ -223,7 +229,12 @@ const commands = {
     quando,
     tarot,
     insta,
-    tk
+    tk,
+    proteger,
+    naval,
+    shoot,
+    exit: exitNaval
+
 };
 
 
@@ -246,7 +257,8 @@ const adminOnly = [
     'castigar',
     'descastigar',
     'camp',
-    'entrar'
+    'entrar',
+    'proteger'
 ];
 
 
@@ -1145,7 +1157,7 @@ async function startBot() {
                                 ) {
                                     aviso +=
                                         '\n\n🛡️ *Tenta de novo*\n' +
-                                        'Ta achando que vai punir quem ta no controle?.';
+                                        'Ta achando que consegue me punir?';
                                 } else if (
                                     deletedOwnMessage &&
                                     originalAuthor

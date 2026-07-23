@@ -2,7 +2,8 @@ const {
     games,
     parseCoordinate,
     fireShot,
-    allSunk
+    allSunk,
+    renderBoard
 } = require('../utils/navalStore');
 
 module.exports = async ({ args, message }) => {
@@ -28,71 +29,93 @@ module.exports = async ({ args, message }) => {
     if (!coord) {
         return (
             '❌ Coordenada inválida.\n' +
-            'Use letra (a-p) + número (1-16), ex: `,shoot a2` ou `,shoot p16`'
+            'Use letra (a-p) + número (1-16)\n' +
+            'Ex: ,shoot a2'
         );
     }
 
+    // SOLO
     if (game.mode === 'solo') {
         const board = game.boards[sender];
-        const result = fireShot(board, coord.row, coord.col);
+
+        const result = fireShot(
+            board,
+            coord.row,
+            coord.col
+        );
 
         if (result.alreadyShot) {
             return `⚠️ Você já atirou em ${coord.label}.`;
         }
 
         let resposta = result.hit
-            ? `💥 Tiro certeiro em ${coord.label}!`
-            : `🌊 Água em ${coord.label}.`;
+            ? `💥 ACERTOU EM ${coord.label}!`
+            : `🌊 ÁGUA EM ${coord.label}!`;
 
         if (result.hit && result.sunk) {
             resposta += `\n🚢 Você afundou o ${result.ship.name}!`;
         }
 
+        resposta += '\n\n' + renderBoard(board);
+
         if (allSunk(board)) {
             games.delete(groupId);
+
             resposta +=
-                '\n\n🏆 *Você afundou toda a frota!*\n' +
-                'Use `,naval` pra jogar de novo.';
+                '\n\n🏆 VOCÊ VENCEU!\n' +
+                'Toda a frota foi destruída.';
         }
 
         return resposta;
     }
 
-    // pvp
+    // PVP
+
     if (game.turn !== sender) {
-        return '⏳ Não é sua vez. Aguarde o adversário atirar.';
+        return '⏳ Não é sua vez.';
     }
 
-    const opponent = game.players.find(p => p !== sender);
-    const board = game.boards[opponent];
-    const result = fireShot(board, coord.row, coord.col);
+    const opponent =
+        game.players.find(p => p !== sender);
+
+    const board =
+        game.boards[opponent];
+
+    const result = fireShot(
+        board,
+        coord.row,
+        coord.col
+    );
 
     if (result.alreadyShot) {
-        return `⚠️ Você já atirou em ${coord.label} nesse adversário.`;
-    }
-
-    if (!result.alreadyShot) {
-        game.turn = opponent;
+        return `⚠️ Você já atirou em ${coord.label}.`;
     }
 
     let resposta = result.hit
-        ? `💥 @${sender.split('@')[0]} acertou em ${coord.label}!`
-        : `🌊 @${sender.split('@')[0]} atirou em ${coord.label} e caiu na água.`;
+        ? `💥 @${sender.split('@')[0]} acertou ${coord.label}!`
+        : `🌊 @${sender.split('@')[0]} atirou em ${coord.label} e errou!`;
 
     if (result.hit && result.sunk) {
-        resposta += `\n🚢 Afundou o ${result.ship.name} de @${opponent.split('@')[0]}!`;
+        resposta +=
+            `\n🚢 Afundou o ${result.ship.name}!`;
     }
+
+    resposta += '\n\n';
+    resposta += renderBoard(board);
 
     if (allSunk(board)) {
         games.delete(groupId);
+
         resposta +=
-            `\n\n🏆 *@${sender.split('@')[0]} venceu a Batalha Naval!*\n` +
-            'Use `,naval` pra jogar de novo.';
+            `\n\n🏆 @${sender.split('@')[0]} venceu a partida!`;
+
         return resposta;
     }
 
     game.turn = opponent;
-    resposta += `\n\nVez de: @${opponent.split('@')[0]}`;
 
+    resposta +=
+        `\n\n🎮 Próxima vez: @${opponent.split('@')[0]}`;
+    resposta += '\n\nUse ,shoot <letra><número> para atirar.';
     return resposta;
 };

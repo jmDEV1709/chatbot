@@ -159,11 +159,9 @@ function renderBoard(board) {
     let tiros = 0;
     let acertos = 0;
 
-    lines.push('╔══════════════════════════════╗');
-    lines.push('║       🚢 BATALHA NAVAL       ║');
-    lines.push('╚══════════════════════════════╝');
+    lines.push('🚢 BATALHA NAVAL');
     lines.push('');
-    lines.push('   🇦 🇧 🇨 🇩 🇪 🇫 🇬 🇭 🇮 🇯 🇰 🇱 🇲 🇳 🇴 🇵');
+    lines.push('   A B C D E F G H I J K L M N O P');
     lines.push('');
 
     for (let r = 0; r < BOARD_SIZE; r++) {
@@ -181,24 +179,26 @@ function renderBoard(board) {
                 linha.push('🌊');
                 tiros++;
             } else {
-                linha.push('🟦');
+                linha.push('⬜');
             }
         }
 
-        const numero = String(r + 1).padStart(2, '0');
-        lines.push(`${numero} ${linha.join(' ')}`);
+        lines.push(
+            `${String(r + 1).padStart(2, '0')} ${linha.join(' ')}`
+        );
     }
 
     lines.push('');
-    lines.push('━━━━━━━━━━━━━━━━━━━━');
     lines.push(`🎯 Tiros: ${tiros}`);
     lines.push(`💥 Acertos: ${acertos}`);
     lines.push(`❌ Erros: ${tiros - acertos}`);
-    lines.push('━━━━━━━━━━━━━━━━━━━━');
     lines.push('');
-    lines.push('🟦 Desconhecido');
+    lines.push('⬜ Desconhecido');
     lines.push('🌊 Água');
     lines.push('💥 Acerto');
+    lines.push('');
+    lines.push('Use ,shoot <letra><número> para atirar.');
+    lines.push('');
 
     return lines.join('\n');
 }

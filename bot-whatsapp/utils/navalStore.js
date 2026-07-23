@@ -176,7 +176,57 @@ function renderBoard(board) {
 
     return lines.join('\n');
 }
+function fireShot(board, row, col) {
+    const key = `${row},${col}`;
 
+    if (board.shots.has(key)) {
+        return {
+            alreadyShot: true,
+            hit: board.shots.get(key) === 'hit',
+            sunk: false,
+            ship: null
+        };
+    }
+
+    const shipId = board.grid[row][col];
+
+    if (!shipId) {
+        board.shots.set(key, 'miss');
+
+        return {
+            alreadyShot: false,
+            hit: false,
+            sunk: false,
+            ship: null
+        };
+    }
+
+    board.shots.set(key, 'hit');
+
+    const ship = board.ships.find(item => item.id === shipId);
+
+    if (ship) {
+        ship.hits.add(key);
+    }
+
+    const sunk =
+        ship &&
+        ship.cells.every(cell => ship.hits.has(cell));
+
+    return {
+        alreadyShot: false,
+        hit: true,
+        sunk,
+        ship
+    };
+}
+
+function allSunk(board) {
+    return board.ships.every(ship =>
+        ship.cells.length > 0 &&
+        ship.cells.every(cell => ship.hits.has(cell))
+    );
+}
 module.exports = {
     BOARD_SIZE,
     COLUMNS,

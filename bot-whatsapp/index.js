@@ -71,6 +71,7 @@ const exitNaval = require('./comandos/exit');
 
 const proteger = require('./comandos/proteger');
 const insta = require('./comandos/insta');
+const x = require('./comandos/x');
 const tk = require('./comandos/tk');
 const menu = require('./comandos/menu');
 const tarot = require('./comandos/tarot');
@@ -216,6 +217,7 @@ const commands = {
     banco,
 
     play,
+    x,
 
     coop,
     eu1,

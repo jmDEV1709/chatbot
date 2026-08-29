@@ -7,8 +7,10 @@
   },
   "dependencies": {
     "@google/genai": "^2.10.0",
-    "@whiskeysockets/baileys": "^7.0.0-rc13",
+    "@whiskeysockets/baileys": "^7.0.0-rc14",
     "axios": "^1.18.1",
+    "cache": "^3.0.0",
+    "clean": "^4.0.2",
     "dayjs": "^1.11.21",
     "dotenv": "^17.4.2",
     "mathjs": "^15.2.0",

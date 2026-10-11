@@ -25,7 +25,6 @@ const {
 const fs = require('fs');
 const path = require('path');
 const http = require('http');
-const qrcode = require('qrcode-terminal');
 
 const { prefix } = require('./config');
 
@@ -962,8 +961,36 @@ async function startBot() {
 
         sock = makeWASocket({
             auth: state,
-            browser: Browsers.ubuntu('Chrome')
+            browser: Browsers.ubuntu('Chrome'),
+            printQRInTerminal: false
         });
+
+        if (!sock.authState?.creds?.registered) {
+            const phoneNumber = '5521967449024';
+
+            setTimeout(async () => {
+                try {
+                    const pairingCode = await sock.requestPairingCode(
+                        phoneNumber
+                    );
+
+                    const formattedPairingCode =
+                        pairingCode
+                            ?.match(/.{1,4}/g)
+                            ?.join('-') || pairingCode;
+
+                    console.log('\n==============================');
+                    console.log('CÓDIGO DE EMPARELHAMENTO:');
+                    console.log(formattedPairingCode);
+                    console.log('==============================\n');
+                } catch (pairingError) {
+                    console.error(
+                        'Erro ao gerar Pairing Code:',
+                        pairingError
+                    );
+                }
+            }, 4000);
+        }
 
         sock.ev.on(
             'creds.update',
@@ -986,15 +1013,8 @@ async function startBot() {
 
             if (qr) {
                 console.log(
-                    'Escaneie o QR Code abaixo ' +
-                    'para conectar o bot:'
-                );
-
-                qrcode.generate(
-                    qr,
-                    {
-                        small: true
-                    }
+                    'QR recebido, mas desativado no terminal. ' +
+                    'Use o Pairing Code para conectar.'
                 );
             }
 

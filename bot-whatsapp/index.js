@@ -24,6 +24,7 @@ const {
 
 const fs = require('fs');
 const path = require('path');
+const http = require('http');
 const qrcode = require('qrcode-terminal');
 
 const { prefix } = require('./config');
@@ -272,9 +273,97 @@ const adminOnly = [
 let sock;
 let isStarting = false;
 let reconnectTimer;
+let reconnectAttempts = 0;
 let processLockAcquired = false;
 
 const lockFilePath = './database/bot.lock';
+const SERVER_PORT = Number(process.env.PORT) || 3000;
+const MAX_RECONNECT_DELAY_MS = 60000;
+
+function startHealthServer() {
+    const server = http.createServer((req, res) => {
+        if (req.url === '/' && req.method === 'GET') {
+            res.writeHead(
+                200,
+                {
+                    'Content-Type': 'text/plain; charset=utf-8'
+                }
+            );
+            res.end('Bot Online');
+            return;
+        }
+
+        res.writeHead(
+            404,
+            {
+                'Content-Type': 'text/plain; charset=utf-8'
+            }
+        );
+        res.end('Not Found');
+    });
+
+    server.listen(
+        SERVER_PORT,
+        () => {
+            console.log(
+                `Servidor HTTP ativo na porta ${SERVER_PORT}`
+            );
+        }
+    );
+
+    return server;
+}
+
+function cleanupMediaTempFile(filePath) {
+    if (!filePath) {
+        return;
+    }
+
+    if (!filePath.includes(`${path.sep}media${path.sep}`)) {
+        return;
+    }
+
+    if (!fs.existsSync(filePath)) {
+        return;
+    }
+
+    fs.unlinkSync(filePath);
+}
+
+function scheduleReconnect(reason) {
+    clearTimeout(reconnectTimer);
+
+    const delay = Math.min(
+        3000 * 2 ** reconnectAttempts,
+        MAX_RECONNECT_DELAY_MS
+    );
+
+    reconnectAttempts += 1;
+
+    console.log(
+        `Nova tentativa de conexão em ${Math.floor(delay / 1000)}s`,
+        reason || ''
+    );
+
+    reconnectTimer =
+        setTimeout(
+            () => {
+                startBot().catch(
+                    (error) => {
+                        isStarting = false;
+
+                        console.error(
+                            'Erro ao reconectar:',
+                            error
+                        );
+
+                        scheduleReconnect('falha na reconexão');
+                    }
+                );
+            },
+            delay
+        );
+}
 
 
 // ==========================================================
@@ -849,41 +938,53 @@ async function startBot() {
 
     isStarting = true;
 
-    if (
-        process.argv.includes(
-            '--reset-auth'
-        )
-    ) {
-        fs.rmSync(
-            './database/auth',
-            {
-                recursive: true,
-                force: true
+    try {
+        if (
+            process.argv.includes(
+                '--reset-auth'
+            )
+        ) {
+            fs.rmSync(
+                './database/auth',
+                {
+                    recursive: true,
+                    force: true
+                }
+            );
+
+            console.log(
+                'Sessão antiga removida. ' +
+                'O bot vai gerar um QR novo.'
+            );
+        }
+
+        if (sock?.end) {
+            try {
+                sock.end();
+            } catch (closeError) {
+                console.error(
+                    'Erro ao encerrar sessão anterior:',
+                    closeError
+                );
             }
+        }
+
+        const {
+            state,
+            saveCreds
+        } = await useMultiFileAuthState(
+            './database/auth'
         );
 
-        console.log(
-            'Sessão antiga removida. ' +
-            'O bot vai gerar um QR novo.'
+        sock = makeWASocket({
+            auth: state,
+            browser: Browsers.ubuntu('Chrome')
+        });
+
+        sock.ev.on(
+            'creds.update',
+            saveCreds
         );
-    }
-
-    const {
-        state,
-        saveCreds
-    } = await useMultiFileAuthState(
-        './database/auth'
-    );
-
-    sock = makeWASocket({
-        auth: state,
-        browser: Browsers.ubuntu('Chrome')
-    });
-
-    sock.ev.on(
-        'creds.update',
-        saveCreds
-    );
 
 
     // ======================================================
@@ -918,6 +1019,8 @@ async function startBot() {
                     'Conectado ao WhatsApp'
                 );
 
+                clearTimeout(reconnectTimer);
+                reconnectAttempts = 0;
                 isStarting = false;
 
                 return;
@@ -947,22 +1050,7 @@ async function startBot() {
                     return;
                 }
 
-                clearTimeout(reconnectTimer);
-
-                reconnectTimer =
-                    setTimeout(
-                        () => {
-                            startBot().catch(
-                                (error) => {
-                                    console.error(
-                                        'Erro ao reconectar:',
-                                        error
-                                    );
-                                }
-                            );
-                        },
-                        3000
-                    );
+                scheduleReconnect('conexão encerrada');
             }
         }
     );
@@ -1272,6 +1360,16 @@ async function startBot() {
                                                     'a mídia apagada.'
                                             }
                                         );
+                                        } catch (startError) {
+                                            isStarting = false;
+
+                                            console.error(
+                                                'Falha ao inicializar o bot:',
+                                                startError
+                                            );
+
+                                            scheduleReconnect('falha na inicialização');
+                                        }
                                     }
                                 }
                             } catch (
@@ -1848,6 +1946,7 @@ async function startBot() {
 // ==========================================================
 
 acquireProcessLock();
+startHealthServer();
 
 startBot().catch((error) => {
     isStarting = false;
@@ -1856,4 +1955,6 @@ startBot().catch((error) => {
         'Erro ao iniciar o bot:',
         error
     );
+
+    scheduleReconnect('erro inicial');
 });

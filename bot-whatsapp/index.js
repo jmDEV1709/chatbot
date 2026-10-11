@@ -314,22 +314,6 @@ function startHealthServer() {
     return server;
 }
 
-function cleanupMediaTempFile(filePath) {
-    if (!filePath) {
-        return;
-    }
-
-    if (!filePath.includes(`${path.sep}media${path.sep}`)) {
-        return;
-    }
-
-    if (!fs.existsSync(filePath)) {
-        return;
-    }
-
-    fs.unlinkSync(filePath);
-}
-
 function scheduleReconnect(reason) {
     clearTimeout(reconnectTimer);
 
@@ -1360,16 +1344,6 @@ async function startBot() {
                                                     'a mídia apagada.'
                                             }
                                         );
-                                        } catch (startError) {
-                                            isStarting = false;
-
-                                            console.error(
-                                                'Falha ao inicializar o bot:',
-                                                startError
-                                            );
-
-                                            scheduleReconnect('falha na inicialização');
-                                        }
                                     }
                                 }
                             } catch (
@@ -1938,6 +1912,17 @@ async function startBot() {
             }
         }
     );
+
+    } catch (startError) {
+        isStarting = false;
+
+        console.error(
+            'Falha ao inicializar o bot:',
+            startError
+        );
+
+        scheduleReconnect('falha na inicialização');
+    }
 }
 
 

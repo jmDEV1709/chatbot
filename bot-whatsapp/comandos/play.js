@@ -1,33 +1,72 @@
-const { spawn } = require('child_process');
 const fs = require('fs');
 const path = require('path');
-const os = require('os');
+const { pipeline } = require('stream/promises');
+const ytdl = require('@distube/ytdl-core');
+const ytSearch = require('yt-search');
 
-const COOKIES_PATH = path.join(__dirname, '..', 'cookies.txt');
-const YTDLP_BIN = process.env.YTDLP_PATH || 'yt-dlp';
+const TEMP_MEDIA_DIR = path.join(__dirname, '..', 'media', 'temp');
+const MAX_AUDIO_SIZE = 25 * 1024 * 1024;
 
 function isUrl(str) {
     return /^https?:\/\//i.test(str);
 }
 
-function runYtDlp(args) {
-    return new Promise((resolve, reject) => {
-        const proc = spawn(YTDLP_BIN, args);
-        let stderr = '';
-        proc.stderr.on('data', (chunk) => {
-            stderr += chunk.toString();
-        });
-        proc.on('error', (error) => {
-            reject(new Error(`Não foi possível executar o yt-dlp. Verifique se ele está instalado e no PATH. (${error.message})`));
-        });
-        proc.on('close', (code) => {
-            if (code === 0) {
-                resolve();
-            } else {
-                reject(new Error(`yt-dlp encerrou com código ${code}. Detalhes: ${stderr.slice(-500)}`));
-            }
-        });
+async function resolveYouTubeUrl(query) {
+    if (isUrl(query)) {
+        return query;
+    }
+
+    const result = await ytSearch(query);
+    const firstVideo = result.videos?.[0];
+
+    if (!firstVideo?.url) {
+        throw new Error('SEARCH_NO_RESULTS');
+    }
+
+    return firstVideo.url;
+}
+
+async function ensureTempDir() {
+    await fs.promises.mkdir(TEMP_MEDIA_DIR, { recursive: true });
+}
+
+async function downloadYouTubeAudio(url, outputPath) {
+    const info = await ytdl.getInfo(url);
+
+    const format = ytdl.chooseFormat(info.formats, {
+        quality: 'highestaudio',
+        filter: 'audioonly'
     });
+
+    if (!format?.url) {
+        throw new Error('AUDIO_FORMAT_NOT_FOUND');
+    }
+
+    const contentLength = Number(format.contentLength || 0);
+
+    if (contentLength && contentLength > MAX_AUDIO_SIZE) {
+        throw new Error('FILE_TOO_LARGE');
+    }
+
+    const audioStream = ytdl.downloadFromInfo(info, {
+        format,
+        highWaterMark: 1 << 20
+    });
+
+    let downloadedSize = 0;
+
+    audioStream.on('data', (chunk) => {
+        downloadedSize += chunk.length;
+
+        if (downloadedSize > MAX_AUDIO_SIZE) {
+            audioStream.destroy(new Error('FILE_TOO_LARGE'));
+        }
+    });
+
+    await pipeline(
+        audioStream,
+        fs.createWriteStream(outputPath)
+    );
 }
 
 module.exports = async function play({ args, sock, message }) {
@@ -38,54 +77,61 @@ module.exports = async function play({ args, sock, message }) {
         return '❗ Uso: ,play <nome da música ou link do YouTube>';
     }
 
-    const target = isUrl(query) ? query : `ytsearch1:${query}`;
-
-    // Pasta temporária isolada por execução, pra evitar conflito entre pedidos simultâneos
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'play-'));
-    const outputTemplate = path.join(tmpDir, '%(title)s.%(ext)s');
+    let tempFilePath;
 
     try {
-        await sock.sendMessage(remoteJid, { text: '🔎 Buscando e baixando o áudio, aguenta aí...' }, { quoted: message });
-
-        const ytArgs = [
-            target,
-            '-x', // extrai só o áudio
-            '--audio-format', 'mp3',
-            '--audio-quality', '0',
-            '--no-playlist',
-            '-o', outputTemplate,
-            '--no-progress',
-        ];
-
-        if (fs.existsSync(COOKIES_PATH)) {
-            ytArgs.push('--cookies', COOKIES_PATH);
-        }
-
-        await runYtDlp(ytArgs);
-
-        const files = fs.readdirSync(tmpDir).filter((f) => f.endsWith('.mp3'));
-        if (files.length === 0) {
-            throw new Error('Download concluído, mas nenhum arquivo mp3 foi encontrado.');
-        }
-
-        const filePath = path.join(tmpDir, files[0]);
-        const buffer = fs.readFileSync(filePath);
-
         await sock.sendMessage(
             remoteJid,
             {
-                audio: buffer,
-                mimetype: 'audio/mpeg',
-                ptt: false,
+                text: '🔎 Buscando e baixando o áudio, aguenta aí...'
             },
             { quoted: message }
         );
 
+        const youtubeUrl = await resolveYouTubeUrl(query);
+
+        await ensureTempDir();
+
+        tempFilePath = path.join(
+            TEMP_MEDIA_DIR,
+            `play-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.m4a`
+        );
+
+        await downloadYouTubeAudio(youtubeUrl, tempFilePath);
+
+        await sock.sendMessage(
+            remoteJid,
+            {
+                audio: { url: tempFilePath },
+                mimetype: 'audio/mp4',
+                ptt: false
+            },
+            { quoted: message }
+        );
+
+        await fs.promises.unlink(tempFilePath);
+        tempFilePath = null;
+
         return null;
     } catch (error) {
         console.error('Erro no comando play:', error);
-        return `❌ Não consegui baixar o áudio. ${error.message}`;
+
+        if (error.message === 'SEARCH_NO_RESULTS') {
+            return '❌ Não encontrei resultados para essa busca no YouTube.';
+        }
+
+        if (error.message === 'FILE_TOO_LARGE') {
+            return '❌ O áudio ultrapassa o limite de 25 MB do bot.';
+        }
+
+        if (error.message === 'AUDIO_FORMAT_NOT_FOUND') {
+            return '❌ Não encontrei um formato de áudio compatível para esse vídeo.';
+        }
+
+        return '❌ Não consegui baixar o áudio agora. Tente outro link ou outra música.';
     } finally {
-        fs.rmSync(tmpDir, { recursive: true, force: true });
+        if (tempFilePath) {
+            await fs.promises.unlink(tempFilePath).catch(() => {});
+        }
     }
 };

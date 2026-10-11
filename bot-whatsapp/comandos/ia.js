@@ -1,10 +1,30 @@
 const OpenAI = require("openai");
 const { groqApiKey, groqModel } = require("../config");
 
-const client = new OpenAI({
-    apiKey: groqApiKey,
-    baseURL: "https://api.groq.com/openai/v1"
-});
+let client = null;
+
+const getClient = () => {
+    if (client) {
+        return client;
+    }
+
+    const apiKey = (groqApiKey || "").trim();
+
+    if (!apiKey) {
+        return null;
+    }
+
+    try {
+        client = new OpenAI({
+            apiKey,
+            baseURL: "https://api.groq.com/openai/v1"
+        });
+        return client;
+    } catch (error) {
+        console.error("Erro ao inicializar cliente de IA:", error);
+        return null;
+    }
+};
 
 module.exports = async ({ args }) => {
     const prompt = args.join(" ").trim();
@@ -13,8 +33,14 @@ module.exports = async ({ args }) => {
         return "Exemplo: ,ia explique o que é Node.js";
     }
 
+    const openAIClient = getClient();
+
+    if (!openAIClient) {
+        return "Comando indisponível: chave não configurada";
+    }
+
     try {
-        const response = await client.chat.completions.create({
+        const response = await openAIClient.chat.completions.create({
             model: groqModel,
             messages: [
                 {

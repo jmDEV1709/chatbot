@@ -30,13 +30,37 @@ async function ensureTempDir() {
     await fs.promises.mkdir(TEMP_MEDIA_DIR, { recursive: true });
 }
 
+function inferMimeType(format) {
+    const baseMimeType = format?.mimeType?.split(';')?.[0];
+
+    if (baseMimeType) {
+        return baseMimeType;
+    }
+
+    if (format?.container === 'webm') {
+        return 'audio/webm';
+    }
+
+    return 'audio/mp4';
+}
+
 async function downloadYouTubeAudio(url, outputPath) {
     const info = await ytdl.getInfo(url);
 
-    const format = ytdl.chooseFormat(info.formats, {
+    const preferredFormat = ytdl.chooseFormat(info.formats, {
+        quality: 'highestaudio',
+        filter: (candidate) =>
+            candidate.hasAudio &&
+            !candidate.hasVideo &&
+            ['mp4', 'm4a'].includes(candidate.container)
+    });
+
+    const fallbackFormat = ytdl.chooseFormat(info.formats, {
         quality: 'highestaudio',
         filter: 'audioonly'
     });
+
+    const format = preferredFormat?.url ? preferredFormat : fallbackFormat;
 
     if (!format?.url) {
         throw new Error('AUDIO_FORMAT_NOT_FOUND');
@@ -67,6 +91,8 @@ async function downloadYouTubeAudio(url, outputPath) {
         audioStream,
         fs.createWriteStream(outputPath)
     );
+
+    return format;
 }
 
 module.exports = async function play({ args, sock, message }) {
@@ -92,18 +118,30 @@ module.exports = async function play({ args, sock, message }) {
 
         await ensureTempDir();
 
+        const defaultExtension = 'm4a';
         tempFilePath = path.join(
             TEMP_MEDIA_DIR,
-            `play-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.m4a`
+            `play-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${defaultExtension}`
         );
 
-        await downloadYouTubeAudio(youtubeUrl, tempFilePath);
+        const selectedFormat = await downloadYouTubeAudio(youtubeUrl, tempFilePath);
+        const container = selectedFormat.container || defaultExtension;
+        const mimetype = inferMimeType(selectedFormat);
+
+        if (container !== defaultExtension) {
+            const renamedTempFilePath = tempFilePath.replace(
+                new RegExp(`${defaultExtension}$`),
+                container
+            );
+            await fs.promises.rename(tempFilePath, renamedTempFilePath);
+            tempFilePath = renamedTempFilePath;
+        }
 
         await sock.sendMessage(
             remoteJid,
             {
                 audio: { url: tempFilePath },
-                mimetype: 'audio/mp4',
+                mimetype,
                 ptt: false
             },
             { quoted: message }

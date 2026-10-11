@@ -1,10 +1,13 @@
 const fs = require('fs');
 const path = require('path');
-const os = require('os');
-const { spawn } = require('child_process');
+const axios = require('axios');
+const { pipeline } = require('stream/promises');
+const { tiktokdl } = require('@bochilteam/scraper-tiktok');
+const { instagramdl } = require('@bochilteam/scraper-instagram');
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024;
 const DOWNLOAD_TIMEOUT = 120000;
+const TEMP_MEDIA_DIR = path.join(__dirname, '..', 'media', 'temp');
 
 // Impede vários downloads simultâneos no mesmo grupo
 const activeDownloads = new Set();
@@ -54,199 +57,99 @@ function validateUrl(rawUrl, platform) {
     return parsedUrl.toString();
 }
 
-function runYtDlp(url, outputTemplate) {
-    return new Promise((resolve, reject) => {
-        const args = [
-            '--no-playlist',
-            '--no-warnings',
-            '--restrict-filenames',
+async function resolveDownloadUrl(url, platform) {
+    if (platform === 'instagram') {
+        const results = await instagramdl(url);
+        const video = results.find((item) => item.type === 'video');
 
-            // Limite escolhido para proteger a VPS e o envio
-            '--max-filesize',
-            '50M',
+        if (!video?.url) {
+            throw new Error('VIDEO_NOT_FOUND');
+        }
 
-            // Prioriza vídeo MP4/H.264 com áudio
-            '-S',
-            'vcodec:h264,acodec:aac,ext:mp4',
-
-            '--merge-output-format',
-            'mp4',
-
-            '--recode-video',
-            'mp4',
-
-            '-o',
-            outputTemplate,
-
-            url
-        ];
-
-        const processYtDlp = spawn(
-            'yt-dlp',
-            args,
-            {
-                stdio: [
-                    'ignore',
-                    'pipe',
-                    'pipe'
-                ]
-            }
-        );
-
-        let stderr = '';
-        let stdout = '';
-        let finished = false;
-
-        const timeout = setTimeout(() => {
-            if (finished) {
-                return;
-            }
-
-            processYtDlp.kill('SIGKILL');
-            reject(new Error('DOWNLOAD_TIMEOUT'));
-        }, DOWNLOAD_TIMEOUT);
-
-        processYtDlp.stdout.on('data', (data) => {
-            stdout += data.toString();
-        });
-
-        processYtDlp.stderr.on('data', (data) => {
-            stderr += data.toString();
-        });
-
-        processYtDlp.on('error', (error) => {
-            if (finished) {
-                return;
-            }
-
-            finished = true;
-            clearTimeout(timeout);
-
-            if (error.code === 'ENOENT') {
-                reject(new Error('YTDLP_NOT_FOUND'));
-                return;
-            }
-
-            reject(error);
-        });
-
-        processYtDlp.on('close', (code) => {
-            if (finished) {
-                return;
-            }
-
-            finished = true;
-            clearTimeout(timeout);
-
-            if (code === 0) {
-                resolve({
-                    stdout,
-                    stderr
-                });
-                return;
-            }
-
-            const combinedOutput =
-                `${stdout}\n${stderr}`.toLowerCase();
-
-            if (
-                combinedOutput.includes(
-                    'file is larger than max-filesize'
-                ) ||
-                combinedOutput.includes(
-                    'larger than max-filesize'
-                )
-            ) {
-                reject(new Error('FILE_TOO_LARGE'));
-                return;
-            }
-
-            if (
-                combinedOutput.includes('login required') ||
-                combinedOutput.includes(
-                    'not available without logging in'
-                ) ||
-                combinedOutput.includes(
-                    'requested content is not available'
-                )
-            ) {
-                reject(new Error('PRIVATE_OR_UNAVAILABLE'));
-                return;
-            }
-
-            console.error(
-                'Erro completo do yt-dlp:',
-                stderr || stdout
-            );
-
-            reject(new Error('YTDLP_ERROR'));
-        });
-    });
-}
-
-function findDownloadedVideo(directory) {
-    const files = fs.readdirSync(directory);
-
-    const videoFile = files.find((file) => {
-        const extension = path
-            .extname(file)
-            .toLowerCase();
-
-        return [
-            '.mp4',
-            '.mov',
-            '.mkv',
-            '.webm'
-        ].includes(extension);
-    });
-
-    if (!videoFile) {
-        return null;
+        return video.url;
     }
 
-    return path.join(directory, videoFile);
+    if (platform === 'tiktok') {
+        const data = await tiktokdl(url);
+        const videoUrl =
+            data?.video?.noWatermark ||
+            data?.video?.withWatermark;
+
+        if (!videoUrl) {
+            throw new Error('VIDEO_NOT_FOUND');
+        }
+
+        return videoUrl;
+    }
+
+    throw new Error('UNSUPPORTED_PLATFORM');
+}
+
+async function ensureTempDir() {
+    await fs.promises.mkdir(TEMP_MEDIA_DIR, { recursive: true });
+}
+
+async function downloadVideoToFile(downloadUrl, outputPath) {
+    const response = await axios({
+        method: 'get',
+        url: downloadUrl,
+        responseType: 'stream',
+        timeout: DOWNLOAD_TIMEOUT,
+        maxRedirects: 5,
+        validateStatus: (status) => status >= 200 && status < 300
+    });
+
+    const contentLength = Number(
+        response.headers['content-length'] || 0
+    );
+
+    if (contentLength && contentLength > MAX_FILE_SIZE) {
+        throw new Error('FILE_TOO_LARGE');
+    }
+
+    let downloadedBytes = 0;
+
+    response.data.on('data', (chunk) => {
+        downloadedBytes += chunk.length;
+
+        if (downloadedBytes > MAX_FILE_SIZE) {
+            response.data.destroy(new Error('FILE_TOO_LARGE'));
+        }
+    });
+
+    await pipeline(
+        response.data,
+        fs.createWriteStream(outputPath)
+    );
 }
 
 function friendlyError(error, platformName) {
-    switch (error.message) {
-        case 'INVALID_URL':
-            return '❌ O link enviado não é válido.';
-
-        case 'WRONG_PLATFORM':
-            return (
-                `❌ Esse link não pertence ao ${platformName}.`
-            );
-
-        case 'FILE_TOO_LARGE':
-            return (
-                '❌ O vídeo ultrapassa o limite de 50 MB.'
-            );
-
-        case 'PRIVATE_OR_UNAVAILABLE':
-            return (
-                '❌ O vídeo está privado, indisponível ou ' +
-                'exige login.'
-            );
-
-        case 'DOWNLOAD_TIMEOUT':
-            return (
-                '❌ O download demorou demais e foi cancelado.'
-            );
-
-        case 'YTDLP_NOT_FOUND':
-            return (
-                '❌ O yt-dlp não está instalado ou não foi ' +
-                'encontrado na VPS.'
-            );
-
-        default:
-            return (
-                `❌ Não consegui baixar o vídeo do ` +
-                `${platformName}. O link pode estar ` +
-                'indisponível ou o yt-dlp pode precisar ' +
-                'ser atualizado.'
-            );
+    if (error?.message === 'INVALID_URL') {
+        return '❌ O link enviado não é válido.';
     }
+
+    if (error?.message === 'WRONG_PLATFORM') {
+        return `❌ Esse link não pertence ao ${platformName}.`;
+    }
+
+    if (error?.message === 'VIDEO_NOT_FOUND') {
+        return (
+            `❌ Não encontrei vídeo disponível no ${platformName}.`
+        );
+    }
+
+    if (error?.message === 'FILE_TOO_LARGE') {
+        return '❌ O vídeo ultrapassa o limite de 50 MB.';
+    }
+
+    if (error?.code === 'ECONNABORTED') {
+        return '❌ O download demorou demais e foi cancelado.';
+    }
+
+    return (
+        `❌ Não consegui baixar o vídeo do ${platformName}. ` +
+        'Tente novamente em instantes.'
+    );
 }
 
 async function downloadSocialVideo({
@@ -265,7 +168,7 @@ async function downloadSocialVideo({
         );
     }
 
-    let temporaryDirectory;
+    let temporaryFilePath;
 
     try {
         const validUrl = validateUrl(
@@ -286,45 +189,27 @@ async function downloadSocialVideo({
             }
         );
 
-        temporaryDirectory = fs.mkdtempSync(
-            path.join(
-                os.tmpdir(),
-                `${platform}-`
-            )
+        await ensureTempDir();
+
+        temporaryFilePath = path.join(
+            TEMP_MEDIA_DIR,
+            `${platform}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.mp4`
         );
 
-        const outputTemplate = path.join(
-            temporaryDirectory,
-            'video.%(ext)s'
-        );
-
-        await runYtDlp(
+        const downloadUrl = await resolveDownloadUrl(
             validUrl,
-            outputTemplate
+            platform
         );
 
-        const videoPath =
-            findDownloadedVideo(
-                temporaryDirectory
-            );
-
-        if (!videoPath) {
-            throw new Error('VIDEO_NOT_FOUND');
-        }
-
-        const stats = fs.statSync(videoPath);
-
-        if (stats.size > MAX_FILE_SIZE) {
-            throw new Error('FILE_TOO_LARGE');
-        }
-
-        const videoBuffer =
-            fs.readFileSync(videoPath);
+        await downloadVideoToFile(
+            downloadUrl,
+            temporaryFilePath
+        );
 
         await sock.sendMessage(
             remoteJid,
             {
-                video: videoBuffer,
+                video: { url: temporaryFilePath },
                 mimetype: 'video/mp4',
                 caption:
                     `✅ Vídeo baixado do ${platformName}`
@@ -333,6 +218,9 @@ async function downloadSocialVideo({
                 quoted: message
             }
         );
+
+        await fs.promises.unlink(temporaryFilePath);
+        temporaryFilePath = null;
 
         return null;
     } catch (error) {
@@ -348,21 +236,8 @@ async function downloadSocialVideo({
     } finally {
         activeDownloads.delete(remoteJid);
 
-        if (temporaryDirectory) {
-            try {
-                fs.rmSync(
-                    temporaryDirectory,
-                    {
-                        recursive: true,
-                        force: true
-                    }
-                );
-            } catch (cleanupError) {
-                console.error(
-                    'Erro ao apagar arquivos temporários:',
-                    cleanupError
-                );
-            }
+        if (temporaryFilePath) {
+            await fs.promises.unlink(temporaryFilePath).catch(() => {});
         }
     }
 }

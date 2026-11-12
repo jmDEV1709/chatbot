@@ -145,6 +145,10 @@ const castigar = require('./comandos/castigar');
 const descastigar = require('./comandos/descastigar');
 
 const quando = require('./comandos/quando');
+const revelar = require('./comandos/revelar');
+const perfil = require('./comandos/perfil');
+const linkgrupo = require('./comandos/linkgrupo');
+const setname = require('./comandos/setname');
 
 
 // ==========================================================
@@ -166,9 +170,13 @@ const commands = {
 
     upadm: promover,
     downadm: rebaixar,
+    promover,
+    rebaixar,
 
     open: abrirgrupo,
     close: fechargrupo,
+    abrir: abrirgrupo,
+    fechar: fechargrupo,
 
     mute,
     unmute: desmutar,
@@ -236,7 +244,17 @@ const commands = {
     proteger,
     naval,
     shoot,
-    exit: exitNaval
+    exit: exitNaval,
+    revelar,
+    rv: revelar,
+    reveal: revelar,
+    perfil,
+    profile: perfil,
+    linkgrupo,
+    'link-grupo': linkgrupo,
+    link: linkgrupo,
+    setname,
+    'set-name': setname
 
 };
 
@@ -249,8 +267,12 @@ const adminOnly = [
     'ban',
     'upadm',
     'downadm',
+    'promover',
+    'rebaixar',
     'open',
     'close',
+    'abrir',
+    'fechar',
     'mute',
     'unmute',
     'punir',
@@ -261,7 +283,12 @@ const adminOnly = [
     'descastigar',
     'camp',
     'entrar',
-    'proteger'
+    'proteger',
+    'linkgrupo',
+    'link-grupo',
+    'link',
+    'setname',
+    'set-name'
 ];
 
 

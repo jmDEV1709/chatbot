@@ -1,11 +1,13 @@
 const fs = require('fs');
 const path = require('path');
-const { pipeline } = require('stream/promises');
-const ytdl = require('@distube/ytdl-core');
+const { execFile } = require('child_process');
+const { promisify } = require('util');
 const ytSearch = require('yt-search');
 
+const execFileAsync = promisify(execFile);
 const TEMP_MEDIA_DIR = path.join(__dirname, '..', 'media', 'temp');
 const MAX_AUDIO_SIZE = 25 * 1024 * 1024;
+const COOKIES_FILE = path.join(__dirname, '..', 'cookies.txt');
 
 function isUrl(str) {
     return /^https?:\/\//i.test(str);
@@ -30,69 +32,52 @@ async function ensureTempDir() {
     await fs.promises.mkdir(TEMP_MEDIA_DIR, { recursive: true });
 }
 
-function inferMimeType(format) {
-    const baseMimeType = format?.mimeType?.split(';')?.[0];
-
-    if (baseMimeType) {
-        return baseMimeType;
-    }
-
-    if (format?.container === 'webm') {
+function inferMimeType(filePath) {
+    if (filePath.endsWith('.webm')) {
         return 'audio/webm';
     }
 
     return 'audio/mp4';
 }
 
-async function downloadYouTubeAudio(url, outputPath) {
-    const info = await ytdl.getInfo(url);
+async function downloadYouTubeAudio(url, outputBasePath) {
+    const args = [
+        '--no-playlist',
+        '--no-warnings',
+        '--max-filesize', '25M',
+        '--format', 'bestaudio[ext=m4a]/bestaudio',
+        '--output', `${outputBasePath}.%(ext)s`,
+        '--print', 'after_move:filepath'
+    ];
 
-    const preferredFormat = ytdl.chooseFormat(info.formats, {
-        quality: 'highestaudio',
-        filter: (candidate) =>
-            candidate.hasAudio &&
-            !candidate.hasVideo &&
-            ['mp4', 'm4a'].includes(candidate.container)
-    });
-
-    const fallbackFormat = ytdl.chooseFormat(info.formats, {
-        quality: 'highestaudio',
-        filter: 'audioonly'
-    });
-
-    const format = preferredFormat?.url ? preferredFormat : fallbackFormat;
-
-    if (!format?.url) {
-        throw new Error('AUDIO_FORMAT_NOT_FOUND');
+    if (fs.existsSync(COOKIES_FILE)) {
+        args.push('--cookies', COOKIES_FILE);
     }
 
-    const contentLength = Number(format.contentLength || 0);
+    try {
+        const { stdout } = await execFileAsync('yt-dlp', [...args, url], {
+            timeout: 120000,
+            maxBuffer: 1024 * 1024
+        });
+        const filePath = stdout.trim().split('\n').pop();
 
-    if (contentLength && contentLength > MAX_AUDIO_SIZE) {
-        throw new Error('FILE_TOO_LARGE');
-    }
-
-    const audioStream = ytdl.downloadFromInfo(info, {
-        format,
-        highWaterMark: 1 << 20
-    });
-
-    let downloadedSize = 0;
-
-    audioStream.on('data', (chunk) => {
-        downloadedSize += chunk.length;
-
-        if (downloadedSize > MAX_AUDIO_SIZE) {
-            audioStream.destroy(new Error('FILE_TOO_LARGE'));
+        if (!filePath || !fs.existsSync(filePath)) {
+            throw new Error('AUDIO_FORMAT_NOT_FOUND');
         }
-    });
 
-    await pipeline(
-        audioStream,
-        fs.createWriteStream(outputPath)
-    );
+        const { size } = await fs.promises.stat(filePath);
+        if (size > MAX_AUDIO_SIZE) {
+            await fs.promises.unlink(filePath).catch(() => {});
+            throw new Error('FILE_TOO_LARGE');
+        }
 
-    return format;
+        return filePath;
+    } catch (error) {
+        if (error.code === 'ENOENT') {
+            throw new Error('YTDLP_NOT_INSTALLED');
+        }
+        throw error;
+    }
 }
 
 module.exports = async function play({ args, sock, message }) {
@@ -118,30 +103,21 @@ module.exports = async function play({ args, sock, message }) {
 
         await ensureTempDir();
 
-        const defaultExtension = 'm4a';
-        tempFilePath = path.join(
+        const outputBasePath = path.join(
             TEMP_MEDIA_DIR,
-            `play-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${defaultExtension}`
+            `play-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
         );
 
-        const selectedFormat = await downloadYouTubeAudio(youtubeUrl, tempFilePath);
-        const container = selectedFormat.container || defaultExtension;
-        const mimetype = inferMimeType(selectedFormat);
-
-        if (container !== defaultExtension) {
-            const renamedTempFilePath = tempFilePath.replace(
-                new RegExp(`${defaultExtension}$`),
-                container
-            );
-            await fs.promises.rename(tempFilePath, renamedTempFilePath);
-            tempFilePath = renamedTempFilePath;
-        }
+        tempFilePath = await downloadYouTubeAudio(
+            youtubeUrl,
+            outputBasePath
+        );
 
         await sock.sendMessage(
             remoteJid,
             {
                 audio: { url: tempFilePath },
-                mimetype,
+                mimetype: inferMimeType(tempFilePath),
                 ptt: false
             },
             { quoted: message }
@@ -164,6 +140,10 @@ module.exports = async function play({ args, sock, message }) {
 
         if (error.message === 'AUDIO_FORMAT_NOT_FOUND') {
             return '❌ Não encontrei um formato de áudio compatível para esse vídeo.';
+        }
+
+        if (error.message === 'YTDLP_NOT_INSTALLED') {
+            return '❌ Instale o yt-dlp na VM: sudo apt install -y yt-dlp';
         }
 
         return '❌ Não consegui baixar o áudio agora. Tente outro link ou outra música.';

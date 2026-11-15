@@ -2,7 +2,6 @@ const fs = require('fs');
 const path = require('path');
 const { execFile } = require('child_process');
 const { promisify } = require('util');
-const ytSearch = require('yt-search');
 
 const execFileAsync = promisify(execFile);
 const TEMP_MEDIA_DIR = path.join(__dirname, '..', 'media', 'temp');
@@ -18,14 +17,42 @@ async function resolveYouTubeUrl(query) {
         return query;
     }
 
-    const result = await ytSearch(query);
-    const firstVideo = result.videos?.[0];
+    const args = [
+        '--flat-playlist',
+        '--no-warnings',
+        '--skip-download',
+        '--print', '%(webpage_url)s',
+        `ytsearch1:${query}`
+    ];
 
-    if (!firstVideo?.url) {
-        throw new Error('SEARCH_NO_RESULTS');
+    if (fs.existsSync(COOKIES_FILE)) {
+        args.splice(3, 0, '--cookies', COOKIES_FILE);
     }
 
-    return firstVideo.url;
+    try {
+        const { stdout } = await execFileAsync('yt-dlp', args, {
+            timeout: 60000,
+            maxBuffer: 1024 * 1024
+        });
+        const result = stdout
+            .split(/\r?\n/)
+            .map((line) => line.trim())
+            .find((line) => /^https?:\/\//i.test(line));
+
+        if (!result) {
+            throw new Error('SEARCH_NO_RESULTS');
+        }
+
+        return result;
+    } catch (error) {
+        if (error.code === 'ENOENT') {
+            throw new Error('YTDLP_NOT_INSTALLED');
+        }
+        if (error.code === 'ETIMEDOUT') {
+            throw new Error('SEARCH_TIMEOUT');
+        }
+        throw error;
+    }
 }
 
 async function ensureTempDir() {
@@ -144,6 +171,10 @@ module.exports = async function play({ args, sock, message }) {
 
         if (error.message === 'YTDLP_NOT_INSTALLED') {
             return '❌ Instale o yt-dlp na VM: sudo apt install -y yt-dlp';
+        }
+
+        if (error.message === 'SEARCH_TIMEOUT') {
+            return '❌ A busca no YouTube demorou demais. Tente novamente.';
         }
 
         return '❌ Não consegui baixar o áudio agora. Tente outro link ou outra música.';
